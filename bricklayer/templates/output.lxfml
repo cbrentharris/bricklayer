@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<LXFML versionMajor="5" versionMinor="0" name="cube3">
+    <Meta>
+        <Application name="LEGO Digital Designer" versionMajor="4" versionMinor="3"/>
+        <Brand name="LDD"/>
+        <BrickSet version="1128"/>
+    </Meta>
+    <Cameras>
+        <Camera refID="0" fieldOfView="80" distance="69.282051086425781" transformation="-0.7065436840057373,0,-0.70766949653625488,-0.3017314076423645,0.90454733371734619,0.30125138163566589,0.64012050628662109,0.42637336254119873,-0.63910216093063354,44.348861694335937,29.54002571105957,-44.278308868408203"/>
+    </Cameras>
+    <Bricks cameraRef="0">
+    {% for brick in coords %}
+    {% endfor %}
+    </Bricks>
+</LXFML>
