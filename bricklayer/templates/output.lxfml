@@ -9,7 +9,13 @@
         <Camera refID="0" fieldOfView="80" distance="69.282051086425781" transformation="-0.7065436840057373,0,-0.70766949653625488,-0.3017314076423645,0.90454733371734619,0.30125138163566589,0.64012050628662109,0.42637336254119873,-0.63910216093063354,44.348861694335937,29.54002571105957,-44.278308868408203"/>
     </Cameras>
     <Bricks cameraRef="0">
-    {% for brick in coords %}
+    {% for x, y, z, brick in coords %}
+        <Brick refID="{{brick.ref_id}}" designID="" itemNos="777">
+            <Part refID="{{brick.ref_id}}" designID="" materials="" decorations="777">
+                <Bone refID="{{brick.ref_id}}" transformation="{{brick.orientation}},{{}},{{}},{{}}">
+                </Bone> 
+            </Part>
+        </Brick>
     {% endfor %}
     </Bricks>
 </LXFML>
