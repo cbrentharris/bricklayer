@@ -5,6 +5,16 @@ class LDDXML:
     COLOR_ID = "materialID"
     SHAPE_ID = "designID"
 
+class Orientation:
+    u"""
+    An enum defining the orientation values for different orientations
+    """
+    LEFT = '0,0,-1,0,0.99999994039535522,0,1,0,0'
+    RIGHT = '0,0,1,0,0.99999982118606567,0,-1,0,0'
+    FRONT = '-1,0,0,0,0.99999988079071045,0,0,0,-1'
+    BACK = '1,0,0,0,1,0,0,0,1'
+    NORMAL = '1,0,0,0,1,0,0,0,1'
+
 class Shape:
     u""" 
     An enum defining the shapes for shape constants in LDD
