@@ -19,9 +19,31 @@ class ThreeDimensionalPoint:
 
 class Coordinate:
 
-    def __init__(self, shift, value):
+    def __init__(self, shift, value, delta, size):
         self.shift = shift
         self.value = value
+        self.delta = delta
+        self.size = size
+
+    def __iter__(self):
+        return self
+
+    def next(self):
+        if self.size == 0:
+            raise StopIteration
+        self.size -= 1
+        actual_vlue = value * shift
+        result = actual_value + delta
+        new_shift = shift * self.delta_shift(actual_value, result)
+        return (new_shift, self.round(result, new_shift))
+
+    def delta_shift(self, smaller, larger):
+        return 1- if len(str(smaller)) != len(str(larger)) else 1
+
+    def round(self, result, shift):
+        quotient, remainder = divmod(result, shift)
+        return quotient + 1 if remainder > 5 else quotient
+
 
 class VirtualSpace:
 
@@ -32,7 +54,7 @@ class VirtualSpace:
         _x, _y, _z = self.virtual_cube_size
         return all([x < _x, y < _y, z < _z])
 
-    def build(self, three_d_point):
+    def build_cube(self, three_d_point):
         if self.virtual_cube_size is not None:
             raise Exception("Oops, the virtual space has already been built!")
         if three_d_point.area() > constants.MAX_VIRTUAL_CUBE_AREA:
@@ -41,9 +63,9 @@ class VirtualSpace:
         
         self.virtual_cube_size = three_d_point.unpack()
         x, y, z = three_d_point.unpack()
-        x_coords = self.generate_coordinate_list(x, constants.START_X, constants.DELTA_X) 
-        y_coords = self.generate_coordinate_list(y, constants.START_Y, constants.DELTA_Y) 
-        z_coords = self.generate_coordinate_list(z, constants.START_Z, constants.DELTA_Z) 
+        x_coords = self.coordinate_list(x, constants.START_X, constants.DELTA_X) 
+        y_coords = self.coordinate_list(y, constants.START_Y, constants.DELTA_Y) 
+        z_coords = self.coordinate_list(z, constants.START_Z, constants.DELTA_Z) 
         self.coords = [(_x, _y, _z) for _x in x_coords for _y in y_coords for _z in z_coords]
          
     def bounds_are_safe(self, three_d_point_a, three_d_point_b):
@@ -62,27 +84,13 @@ class VirtualSpace:
             0 <= z2 <= z_bounds,
         ])
 
-    def generate_coordinate_list(self, size, start, delta):
-        shift = 1
-        coords = [(shift,start)]
-        val = start
-        while size > 0:
-            shift, val = self.next_val(shift, val, delta)
-            coords.append((shift, val))
-            size -= 1
-        return coords
+    def coordinate_list(self, size, start, delta):
+        return [c for c in Coordinates(1, start, delta, shift)]
+
+    def output_to_file(self, filename):
+        with open(filename, 'w') as outfile:
+            #get refID
+            # 
         
-    def next_val(self, shift, value, delta):
-        actual_value = value * shift
-        result = actual_value + delta
-        new_shift = shift * self.delta_shift(actual_value, result)
-        return (new_shift, self.round(result, new_shift))
-
-    def delta_shift(self, smaller, larger):
-        return 10 if len(str(smaller)) != len(str(larger)) else 1
-
-    def round(self, result, shift):
-        quotient, remainder = divmod(result, shift)
-        return quotient + 1 if remainder > 5 else quotient
 
    #NOTES :: init 3d array with empty bricks. What is the gen all about?
