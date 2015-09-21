@@ -10,9 +10,9 @@
     </Cameras>
     <Bricks cameraRef="0">
     {% for x, y, z, brick in coords %}
-        <Brick refID="{{brick.ref_id}}" designID="" itemNos="777">
-            <Part refID="{{brick.ref_id}}" designID="" materials="" decorations="777">
-                <Bone refID="{{brick.ref_id}}" transformation="{{brick.orientation}},{{}},{{}},{{}}">
+        <Brick refID="{{brick.identifier}}" designID="{{brick.shape}}" itemNos="777">
+            <Part refID="{{brick.identifier}}" designID="{{brick.shape}}" materials="{{brick.color}}" decoration="777">
+                <Bone refID="{{brick.identifier}}" transformation="{{brick.orientation}},{{x}},{{y}},{{z}}">
                 </Bone> 
             </Part>
         </Brick>
