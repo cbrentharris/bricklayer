@@ -1,4 +1,5 @@
 from bricklayer.pieces.enums import Color, Shape
+import uuid
 
 class Brick:
     u"""
@@ -8,6 +9,7 @@ class Brick:
     def __init__(self, color, shape):
         self.color = color
         self.shape = shape
+        self.identifier = uuid.uuid4().int
 
 # Grayscale bricks
 BLACK_BRICK            = Brick(Color.BLACK, Shape.BIT)
