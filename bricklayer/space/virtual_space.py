@@ -1,4 +1,5 @@
 import constants
+from jinja2 import Environment, PackageLoader
 
 import logging
 logger = logging.getLogger('bricklayer')
@@ -32,13 +33,13 @@ class Coordinate:
         if self.size == 0:
             raise StopIteration
         self.size -= 1
-        actual_vlue = value * shift
-        result = actual_value + delta
-        new_shift = shift * self.delta_shift(actual_value, result)
-        return (new_shift, self.round(result, new_shift))
+        self.value *= self.shift
+        result = self.value + self.delta
+        self.shift *= self.delta_shift(self.value, result)
+        return (self.shift, self.round(result, self.shift))
 
     def delta_shift(self, smaller, larger):
-        return 1- if len(str(smaller)) != len(str(larger)) else 1
+        return 10 if len(str(smaller)) != len(str(larger)) else 1
 
     def round(self, result, shift):
         quotient, remainder = divmod(result, shift)
@@ -49,6 +50,8 @@ class VirtualSpace:
 
     def __init__(self):
         self.virtual_cube_size = None 
+        self.origin = None
+        self.offset = None
 
     def in_bounds(self, x, y, z):
         _x, _y, _z = self.virtual_cube_size
@@ -63,34 +66,52 @@ class VirtualSpace:
         
         self.virtual_cube_size = three_d_point.unpack()
         x, y, z = three_d_point.unpack()
+        self.origin = (0, 0, 0)
+        self.offset = (0, 0, 0)
         x_coords = self.coordinate_list(x, constants.START_X, constants.DELTA_X) 
         y_coords = self.coordinate_list(y, constants.START_Y, constants.DELTA_Y) 
         z_coords = self.coordinate_list(z, constants.START_Z, constants.DELTA_Z) 
-        self.coords = [(_x, _y, _z) for _x in x_coords for _y in y_coords for _z in z_coords]
-         
-    def bounds_are_safe(self, three_d_point_a, three_d_point_b):
-        x_bounds, y_bounds, z_bounds = self.virtual_cube_size
-        x1, y1, z1 = three_d_point_a.unpack()
-        x2, y2, z2 = three_d_point_b.unpack()
-        return all([
-            x1 <= x2,
-            y1 <= y2,
-            z1 <= z2,
-            0 <= x1 <= x_bounds,
-            0 <= x2 <= x_bounds,
-            0 <= y1 <= y_bounds,
-            0 <= y2 <= y_bounds,
-            0 <= z1 <= z_bounds,
-            0 <= z2 <= z_bounds,
-        ])
-
+        self.coords = { (k, j, i) : { 'ldd_coordinate' :  (x_coords[k], y_coords[j], z_coords[i]), 'brick' :  None } for i in range(len(z_coords)) for j in range(len(y_coords)) for k in range(len(x_coords)) }
+                
     def coordinate_list(self, size, start, delta):
-        return [c for c in Coordinates(1, start, delta, shift)]
+        return [c for c in Coordinate(1, start, delta, size)]
+
+    def traverse(self, function):
+        starting_point = (0,0,0)
+        ending_point = None
+        def update_function(point):
+            new_brick = function(point)
+            self.update(point, new_brick)
+        self.safe_traverse(starting_point, ending_point, update_function)
+
+    def safe_traverse(self, p1, p2, update_function):
+        x1, y1, z1 = p1
+        x2, y2, z2 = p2
+        if not all([x1 <= x2, y1 <= y2, z1 <= z2]):
+            return
+        for x in range(x1, x2+1):
+            for y in range(y1, y2+1):
+                for z in range(z1, z2 + 1):
+                    update_function(x, y, z)
+
+    def update(self, brick, coordinate):
+        if not self.origin <= coordinate or not self.upper_bounds >= coordinate:
+            return
+        self.coords[coordinate]['brick'] = brick
+
+    def line(self):
+        pass
+
+    def weft(self, pattern, starting_point, ending_point, func):
+        pass
 
     def output_to_file(self, filename):
         with open(filename, 'w') as outfile:
-            #get refID
-            # 
+            env = Environment(loader=PackageLoader('bricklayer', 'templates'))
+            template = env.get_template('output.lxfml')
+            outfile.write(template.render(bricks=self.coords))
+
         
 
    #NOTES :: init 3d array with empty bricks. What is the gen all about?
+   #TODO: add self.origin, self.upper_bounds
