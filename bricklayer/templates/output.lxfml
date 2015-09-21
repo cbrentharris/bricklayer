@@ -9,13 +9,17 @@
         <Camera refID="0" fieldOfView="80" distance="69.282051086425781" transformation="-0.7065436840057373,0,-0.70766949653625488,-0.3017314076423645,0.90454733371734619,0.30125138163566589,0.64012050628662109,0.42637336254119873,-0.63910216093063354,44.348861694335937,29.54002571105957,-44.278308868408203"/>
     </Cameras>
     <Bricks cameraRef="0">
-    {% for x, y, z, brick in coords %}
+    {% for brick_data in coords.values() %}
+        {% set brick = brick_data['brick'] %}
+        {% set x, y, z = brick_data['ldd_coordinate'] %}
+        {% if brick %}
         <Brick refID="{{brick.identifier}}" designID="{{brick.shape}}" itemNos="777">
             <Part refID="{{brick.identifier}}" designID="{{brick.shape}}" materials="{{brick.color}}" decoration="777">
-                <Bone refID="{{brick.identifier}}" transformation="{{brick.orientation}},{{x}},{{y}},{{z}}">
+                <Bone refID="{{brick.identifier}}" transformation="{{brick.orientation}},{{coordinate_to_string(*x)}},{{coordinate_to_string(*y)}},{{coordinate_to_string(*z)}}">
                 </Bone> 
             </Part>
         </Brick>
+        {% endif %}
     {% endfor %}
     </Bricks>
 </LXFML>

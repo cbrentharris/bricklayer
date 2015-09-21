@@ -1,6 +1,7 @@
-import constants
+from bricklayer.space import constants
+from bricklayer.utils.helpers import coordinate_to_string
 from jinja2 import Environment, PackageLoader
-
+from collections import OrderedDict
 import logging
 logger = logging.getLogger('bricklayer')
 
@@ -67,11 +68,12 @@ class VirtualSpace:
         self.virtual_cube_size = three_d_point.unpack()
         x, y, z = three_d_point.unpack()
         self.origin = (0, 0, 0)
+        self.upper_bounds = (x, y, z)
         self.offset = (0, 0, 0)
         x_coords = self.coordinate_list(x, constants.START_X, constants.DELTA_X) 
         y_coords = self.coordinate_list(y, constants.START_Y, constants.DELTA_Y) 
         z_coords = self.coordinate_list(z, constants.START_Z, constants.DELTA_Z) 
-        self.coords = { (k, j, i) : { 'ldd_coordinate' :  (x_coords[k], y_coords[j], z_coords[i]), 'brick' :  None } for i in range(len(z_coords)) for j in range(len(y_coords)) for k in range(len(x_coords)) }
+        self.coords = OrderedDict( ((k, j, i), { 'ldd_coordinate' :  (x_coords[k], y_coords[j], z_coords[i]), 'brick' :  None }) for i in range(len(z_coords)) for j in range(len(y_coords)) for k in range(len(x_coords)) )
                 
     def coordinate_list(self, size, start, delta):
         return [c for c in Coordinate(1, start, delta, size)]
@@ -108,8 +110,9 @@ class VirtualSpace:
     def output_to_file(self, filename):
         with open(filename, 'w') as outfile:
             env = Environment(loader=PackageLoader('bricklayer', 'templates'))
+            env.globals['coordinate_to_string'] = coordinate_to_string
             template = env.get_template('output.lxfml')
-            outfile.write(template.render(bricks=self.coords))
+            outfile.write(template.render(coords=self.coords))
 
         
 
