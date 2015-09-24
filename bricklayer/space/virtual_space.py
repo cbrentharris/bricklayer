@@ -3,6 +3,7 @@ from bricklayer.utils.helpers import coordinate_to_string
 from bricklayer.pieces.enums import Dimensions 
 from jinja2 import Environment, PackageLoader
 from collections import OrderedDict
+import math
 
 class Coordinate:
 
@@ -65,11 +66,39 @@ class VirtualSpace:
                 for z in range(z1, z2 + 1):
                     update_function(x, y, z)
 
-    def line(self):
-        pass
+    def line(self, point_1, point_2, brick):
+        x1, y1, z1 = point_1
+        x2, y2, z2 = point_2
+        while any([x1 < x2, y1 < y2, z1 < z2]):
+            self.add_brick((x1, y1, z1), brick)
+            x1 += 1 if x1 < x2 else 0
+            y1 += 1 if y1 < y2 else 0
+            z1 += 1 if z1 < z2 else 0
 
-    def weft(self, pattern, starting_point, ending_point, func):
-        pass
+    def cylinder(self, radius, height, brick, x_center=0, z_center=0):
+        while radius > 0:
+            self.hollow_cylinder(radius, height, brick, x_center=x_center, z_center=z_center)
+            radius -= 1
+
+    def hollow_cylinder(self, radius, height, brick, x_center=0, z_center=0):
+        for i in range(height+1):
+            self.circle(radius, brick, x_center=x_center, z_center=z_center, y_offset=i)
+
+    def circle(self, radius, brick, x_center=0, z_center=0, y_offset=0):
+        theta = 0
+        while theta <= 2 * math.pi:
+            x = x_center + radius * math.cos(theta)
+            z = z_center + radius * math.sin(theta)
+            self.add_brick((x,y_offset,z), brick)
+            theta += 2* math.pi / (45 * float(radius) / 11)
+
+    def fill(self, point_1, point_2, brick):
+        x1, y1, z1 = point_1
+        x2, y2, z2 = point_2
+        for i in range(x1, x2):
+            for j in range(y1, y2):
+                for k in range(z1, z2):
+                    self.add_brick((i,j,k), brick)
 
     def output_to_file(self, filename):
         with open(filename, 'w') as outfile:
