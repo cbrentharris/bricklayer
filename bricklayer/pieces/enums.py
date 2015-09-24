@@ -24,6 +24,13 @@ class Shape:
     NOSE_CONE = '4589'
     WEDGE = '50746'
 
+class Dimensions:
+    u"""
+    In LDD, bricks have a specific width and height
+    """
+    BRICK_WIDTH = .8
+    BRICK_HEIGHT = .96
+
 class Color:
     u"""
     An enum defining the color constants in LDD

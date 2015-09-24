@@ -1,15 +1,18 @@
-from bricklayer.pieces.enums import Color, Shape
+from bricklayer.pieces.enums import Color, Shape, Orientation
 import uuid
 
 class Brick:
     u"""
     LDD XML bricks are composed of a shape and a color
     """
+    IDENTIFIER = 0
 
-    def __init__(self, color, shape):
+    def __init__(self, color, shape, orientation=Orientation.NORMAL):
         self.color = color
         self.shape = shape
-        self.identifier = uuid.uuid4().int
+        self.identifier = Brick.IDENTIFIER
+        self.orientation = orientation
+        Brick.IDENTIFIER += 1
 
 # Grayscale bricks
 BLACK_BRICK            = Brick(Color.BLACK, Shape.BIT)
