@@ -9,4 +9,5 @@ setup(name='Bricklayer',
     author_email='cbrentharris@gmail.com',
     url='http://wintercoding.club/',
     packages=['distutils', 'distutils.command'],
+    scripts=['doctor']
 )
