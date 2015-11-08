@@ -6,6 +6,5 @@ class ChecksTest(TestCase):
     def test_executes_program(self):
         checker = Checker()
         filename = os.path.dirname(os.path.realpath(__file__)) + '/invalid_syntax.py'
-        print filename
         checker.check_program(filename)
         
