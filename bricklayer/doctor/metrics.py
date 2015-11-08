@@ -3,19 +3,21 @@
 This module is intented to allow the doctor to collect stats about a users program.
 Examples include:
     * Cyclomatic Complexity
-	* SLOC
-	* Comments
+    * SLOC
+    * Comments
 
 """
-import ast
-import radon
+from radon.complexity import cc_visit
+from radon.raw import analyze
+from bricklayer.utils.logger import Logger
 
 class Metrics(object):
     
-	def collect_metrics(self, program_name):
-	    program_file = open(program_name, 'r')
-		code = program_file.read()
-	    cc_response = radan.complexity.cc_visit(code)
-		raw_response = radon.raw.analyze(code)
+    def collect_metrics(self, program_name):
+        program_file = open(program_name, 'r')
+        code = program_file.read()
+        cc_response = cc_visit(code)
+        raw_response = analyze(code)
+        Logger.debug(cc_response)
 
 
