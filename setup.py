@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
-from distutils.core import setup
+#from distutils.core import setup
+from setuptools import setup
 
 setup(name='Bricklayer',
     version='1.0',
@@ -8,6 +9,8 @@ setup(name='Bricklayer',
     author='Christopher Harris',
     author_email='cbrentharris@gmail.com',
     url='http://wintercoding.club/',
-    packages=['distutils', 'distutils.command'],
-    scripts=['doctor']
+    packages=['bricklayer'],
+    scripts=['doctor'],
+	test_suite='nose.collector',
+	tests_require=['nose'],
 )
