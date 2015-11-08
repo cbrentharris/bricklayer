@@ -9,3 +9,4 @@ def ldd_installed():
         return True
     except: 
         return False
+
