@@ -7,4 +7,6 @@ class MetricsTest(TestCase):
         m = Metrics()
         filename = os.path.dirname(os.path.realpath(__file__)) + '/simple_module.py'
         m.collect_metrics(filename)
+        self.assertTrue(m.cc_response[0].complexity == 2)
+        self.assertTrue(m.raw_response.sloc == 4)
 

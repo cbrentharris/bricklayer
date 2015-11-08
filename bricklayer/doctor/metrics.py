@@ -16,8 +16,7 @@ class Metrics(object):
     def collect_metrics(self, program_name):
         program_file = open(program_name, 'r')
         code = program_file.read()
-        cc_response = cc_visit(code)
-        raw_response = analyze(code)
-        Logger.debug(cc_response)
+        self.cc_response = cc_visit(code)
+        self.raw_response = analyze(code)
 
 
