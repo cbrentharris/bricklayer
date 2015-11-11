@@ -1,0 +1,55 @@
+u"""
+    The following constants will be used in collecting metrics.
+"""
+LEVEL_1_PREDEFINED_FUNCTIONS = [
+    "put_2D_1x1_RED",
+    "put_2D_1x1_WHITE",
+    "put_2D_1x1_BLUE",
+    "put_2D_1x1_YELLOW",
+    "put_2D_1x1_GREEN",
+    "put_2D_1x1_GRAY",
+    "put_2D_1x1_BLACK",
+    "put_2D_1x1_EMPTY",
+
+    "put_2D_2x1_RED",
+    "put_2D_2x1_WHITE",
+    "put_2D_2x1_BLUE",
+    "put_2D_2x1_YELLOW",
+    "put_2D_2x1_GREEN",
+    "put_2D_2x1_GRAY",
+    "put_2D_2x1_BLACK",
+    "put_2D_2x1_EMPTY",
+
+    "put_2D_1x2_RED",
+    "put_2D_1x2_WHITE",
+    "put_2D_1x2_BLUE",
+    "put_2D_1x2_YELLOW",
+    "put_2D_1x2_GREEN",
+    "put_2D_1x2_GRAY",
+    "put_2D_1x2_BLACK",
+    "put_2D_1x2_EMPTY",
+
+    "put_2D_2x2_RED",
+    "put_2D_2x2_WHITE",
+    "put_2D_2x2_BLUE",
+    "put_2D_2x2_YELLOW",
+    "put_2D_2x2_GREEN",
+    "put_2D_2x2_GRAY",
+    "put_2D_2x2_BLACK",
+    "put_2D_2x2_EMPTY",
+
+    "put_2D_2x3_RED",
+    "put_2D_2x3_WHITE",
+    "put_2D_2x3_BLUE",
+    "put_2D_2x3_YELLOW",
+    "put_2D_2x3_GREEN",
+    "put_2D_2x3_GRAY",
+    "put_2D_2x3_BLACK",
+    "put_2D_2x3_EMPTY",
+
+    "put_2D_3x2_RED",
+    "put_2D_3x2_WHITE",
+    "put_2D_3x2_BLUE",
+    "put_2D_3x2_YELLOW",
+    "put_2D_3x2_GREEN",
+]
