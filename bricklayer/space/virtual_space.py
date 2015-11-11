@@ -1,5 +1,4 @@
 from bricklayer.space import constants
-from bricklayer.utils.helpers import coordinate_to_string
 from bricklayer.pieces.enums import Dimensions 
 from jinja2 import Environment, PackageLoader
 from collections import OrderedDict
@@ -103,7 +102,6 @@ class VirtualSpace:
     def output_to_file(self, filename):
         with open(filename, 'w') as outfile:
             env = Environment(loader=PackageLoader('bricklayer', 'templates'))
-            env.globals['coordinate_to_string'] = coordinate_to_string
             template = env.get_template('output.lxfml')
             outfile.write(template.render(coords=self.coords.values()))
 

@@ -1,4 +1,4 @@
-from bricklayer.spaces.virtual_space import VirtualSpace
+from bricklayer.space.virtual_space import VirtualSpace
 from bricklayer.pieces.bricks import *
 
 vs = VirtualSpace(100, 100, 100)
