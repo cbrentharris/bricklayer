@@ -13,11 +13,17 @@ class MetricsTest(TestCase):
         m = Metrics()
         filename = os.path.dirname(os.path.realpath(__file__)) + '/simple_module.py'
         m.collect_metrics(filename)
-        self.assertEqual(m.raw_response.sloc, 4)
+        self.assertEqual(m.raw_response.sloc, 5)
 
     def test_it_collects_user_defined_functions(self):
         m = Metrics()
         filename = os.path.dirname(os.path.realpath(__file__)) + '/simple_module.py'
         m.collect_metrics(filename)
         self.assertEqual(m.user_defined_functions, 1)
+
+    def test_it_collects_comments(self):
+        m = Metrics()
+        filename = os.path.dirname(os.path.realpath(__file__)) + '/simple_module.py'
+        m.collect_metrics(filename)
+        self.assertEqual(m.raw_response.comments, 1)
 
