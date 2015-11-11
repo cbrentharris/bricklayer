@@ -3,10 +3,21 @@ from bricklayer.doctor.metrics import Metrics
 import os
 
 class MetricsTest(TestCase):
-    def test_it_collects_metrics(self):
+    def test_it_collects_complexity(self):
         m = Metrics()
         filename = os.path.dirname(os.path.realpath(__file__)) + '/simple_module.py'
         m.collect_metrics(filename)
-        self.assertTrue(m.cc_response[0].complexity == 2)
-        self.assertTrue(m.raw_response.sloc == 4)
+        self.assertEqual(m.cc_response[0].complexity, 2)
+
+    def test_it_collects_sloc(self):
+        m = Metrics()
+        filename = os.path.dirname(os.path.realpath(__file__)) + '/simple_module.py'
+        m.collect_metrics(filename)
+        self.assertEqual(m.raw_response.sloc, 4)
+
+    def test_it_collects_user_defined_functions(self):
+        m = Metrics()
+        filename = os.path.dirname(os.path.realpath(__file__)) + '/simple_module.py'
+        m.collect_metrics(filename)
+        self.assertEqual(m.user_defined_functions, 1)
 
