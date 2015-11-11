@@ -1,7 +1,7 @@
 from bricklayer.space.virtual_space import VirtualSpace
 from bricklayer.pieces.bricks import *
 
-vs = VirtualSpace(100, 100, 100)
+vs = VirtualSpace((100, 100, 100))
 
 put_2D_1x1_RED    = lambda point : put_2D((1,1,1), point, RED_BRICK)
 put_2D_1x1_WHITE  = lambda point : put_2D((1,1,1), point, WHITE_BRICK)
