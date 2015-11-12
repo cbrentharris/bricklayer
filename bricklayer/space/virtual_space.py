@@ -1,10 +1,15 @@
 from bricklayer.space import constants
 from bricklayer.pieces.enums import Dimensions 
+from bricklayer.utils.bricklayer_exceptions import OutOfBoundsException
 from jinja2 import Environment, PackageLoader
 from collections import OrderedDict
 import math
 
 class Coordinate:
+    u"""
+    A class used to define a coordinate within the virtual space. It's simply made up of
+    an x, y, and z coordinate plus a bricklayer brick
+    """
 
     def __init__(self, coords, brick=None):
         self.coords = coords
@@ -27,6 +32,10 @@ class Coordinate:
 
 
 class VirtualSpace:
+    u"""
+    This is the in memory representation of the Lego 3D space that will eventually be output
+    to a flat custom XML file
+    """
 
     def __init__(self, size):
         self.size = size
@@ -34,13 +43,14 @@ class VirtualSpace:
         self.origin = (0,0,0)
         self.upper_bounds = size
 
-    def in_bounds(self, x, y, z):
-        _x, _y, _z = self.virtual_cube_size
-        return all([x < _x, y < _y, z < _z])
+    def in_bounds(self, *point):
+        return all([i1 <= i2 for i1,i2 in zip(self.origin, point) + zip(point, self.upper_bounds)])
 
     def add_brick(self, point, brick):
-        if not self.origin <= point or not self.upper_bounds >= point:
-            return
+        if not self.in_bounds(*point):
+            error_message = "The point {} that you tried to use it outside the bounds defined in the virtual space.\nUpper bounds : {}.\nLower Bounds : {}.".format(point, self.upper_bounds, self.origin)
+            raise OutOfBoundsException(error_message)
+            
         if point not in self.coords:
             coord = Coordinate(point, brick=brick)
             self.coords[point] = coord
