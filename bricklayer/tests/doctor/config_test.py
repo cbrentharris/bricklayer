@@ -4,6 +4,7 @@ import uuid
 import os
 import shutil
 import tempfile
+import ConfigParser
 
 class ConfiguratorTest(TestCase):
 
@@ -23,5 +24,12 @@ class ConfiguratorTest(TestCase):
         os.chdir(self.random_dir)
         Configurator.create_config_if_doesnt_exist()
         self.assertTrue(os.path.exists(self.random_dir + '/.bricklayer' + '/settings.cfg'))
+
+    def test_it_adds_the_uuid_to_the_config_file(self):
+        os.chdir(self.random_dir)
+        Configurator.create_config_if_doesnt_exist()
+        config = ConfigParser.RawConfigParser()
+        config.read([self.random_dir + '/.bricklayer/settings.cfg'])
+        self.assertIsInstance(config.get('General', 'uuid'), str)
         
 
