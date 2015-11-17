@@ -1,7 +1,12 @@
 #!/usr/bin/python
+from bricklayer.doctor.config import Configurator
+
 
 def main():
-    print "hello"
+    Configurator.create_config_if_doesnt_exist()
+    parser = Configurator.generate_parser()
+
+    
 
 if __name__ == "__main__":
     main()
