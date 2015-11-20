@@ -31,5 +31,15 @@ class ConfiguratorTest(TestCase):
         config = ConfigParser.RawConfigParser()
         config.read([self.random_dir + '/.bricklayer/settings.cfg'])
         self.assertIsInstance(config.get('General', 'uuid'), str)
-        
+
+    def test_it_doesnt_overwrite_the_config_file(self):
+        os.chdir(self.random_dir)
+        Configurator.create_config_if_doesnt_exist()
+        config = ConfigParser.RawConfigParser()
+        config.read([self.random_dir + '/.bricklayer/settings.cfg'])
+        generated_uuid = config.get('General', 'uuid')
+        Configurator.create_config_if_doesnt_exist()
+        config2 = ConfigParser.RawConfigParser()
+        config2.read([self.random_dir + '/.bricklayer/settings.cfg'])
+        self.assertEqual(generated_uuid, config.get('General', 'uuid'))
 

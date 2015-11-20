@@ -5,6 +5,8 @@ import ConfigParser
 import uuid
 
 class Configurator(object):
+    bricklayer_config_root = os.getcwd() 
+    bricklayer_config_path = None
 
     @staticmethod
     def create_config_if_doesnt_exist():
@@ -16,11 +18,11 @@ class Configurator(object):
         """
         bricklayer_config_path = None
         # First, try to write to the current directory.
-        if not os.path.isdir(os.getcwd() + '/.bricklayer') and os.access(os.getcwd(), os.W_OK):
-            bricklayer_config_path = os.getcwd() + '/.bricklayer'
+        if not os.path.isdir(bricklayer_config_root + '/.bricklayer') and os.access(bricklayer_config_Root, os.W_OK):
+            bricklayer_config_path = bricklayer_config_root + '/.bricklayer'
             os.makedirs(bricklayer_config_path)
         # Next, try to write to the temp dir.
-        elif not os.path.isdir(os.getcwd() + '/.bricklayer') and os.access(tempfile.gettempdir(), os.W_OK) and not os.path.isdir(tempfile.gettempdir() + '/.bricklayer'):
+        elif not os.path.isdir(bricklayer_config_root + '/.bricklayer') and os.access(tempfile.gettempdir(), os.W_OK) and not os.path.isdir(tempfile.gettempdir() + '/.bricklayer'):
             bricklayer_config_path = tempfile.gettempdir() + '/.bricklayer'
             os.makedirs(bricklayer_config_path)
         if bricklayer_config_path is not None:
