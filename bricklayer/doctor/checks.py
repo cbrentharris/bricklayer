@@ -9,6 +9,7 @@ import ast
 import subprocess
 import py_compile
 from bricklayer.utils.logger import Logger
+from bricklayer.doctor.constants import HelpMessages
 
 class Checker(object):
 
@@ -19,8 +20,11 @@ class Checker(object):
     def check_program_can_be_compiled(self, program_name):
         try:
             py_compile.compile(program_name, doraise=True)
-        except py_compile.PyCompileError:
-            Logger.debug("Oops, there was a compilation error!")
+        except py_compile.PyCompileError as e:
+            if "IndentationError" in str(e):
+                Logger.debug(HelpMessages.BAD_INDENTATION)
+            else:
+                Logger.debug(e)
 
     def check_program_is_using_appropriate_constructs(self, program_name):
         pass

@@ -53,3 +53,31 @@ LEVEL_1_PREDEFINED_FUNCTIONS = [
     "put_2D_3x2_YELLOW",
     "put_2D_3x2_GREEN",
 ]
+
+class HelpMessages(object):
+    BAD_INDENTATION = """
+    Oops! it appears that there was an indentation error. Spacing is **very** important in python.
+    Please look at your code carefully to make sure all the spacing is correct.
+    It can also help to have a second set of eyes look over the code as well. 
+    
+    The line number referenced in the code will be very helpful in letting you know where the 
+    problem is. For example, look at the following code:
+
+    >>> animals = ['cat', 'dog']
+    >>> for animal in animals:
+    ... print animal
+      File "<stdin>", line 2
+          print animal
+              ^
+   IndentationError: expected an indented block
+
+   Above, the code attempts to loop over the animals list and print the animal, but as you can see
+   the "print animal" statement is not indented properly to be within the for loop block, and the 
+   error happens. To correct, the working code looks more like
+
+   >>> for animal in animals:
+   ...     print animal
+   ...
+   cat
+   dog
+    """
