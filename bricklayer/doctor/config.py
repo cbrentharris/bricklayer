@@ -6,8 +6,8 @@ import uuid
 
 class Configurator(object):
 
-    @staticmethod
-    def create_config_if_doesnt_exist():
+    @classmethod
+    def create_config_if_doesnt_exist(cls):
         u"""
         For bricklayer, there are certain settings necessary to perform certain functions.
         For example, we would like the end user to be able to control what their bricklayer API
@@ -29,8 +29,16 @@ class Configurator(object):
                 config = ConfigParser.RawConfigParser()
                 config.add_section('General')
                 config.set('General', 'uuid', str(uuid.uuid4())) 
+                cls.bricklayer_settings_filename = bricklayer_config_path + '/settings.cfg'
                 with open(bricklayer_config_path + '/settings.cfg', 'w+') as configfile:
                     config.write(configfile)
+
+    @classmethod
+    def get_uuid(cls):
+        cls.create_config_if_doesnt_exist()
+        config = ConfigParser.ConfigParser()
+        config.read([cls.bricklayer_settings_filename])
+        return config.get('General', 'uuid')
 
     @staticmethod
     def generate_parser():
