@@ -34,6 +34,15 @@ class Configurator(object):
                     config.write(configfile)
 
     @classmethod
+    def add_to_config(cls, key, value):
+        cls.create_config_if_doesnt_exist()
+        config = ConfigParser.RawConfigParser()
+        config.set('General', key, value)
+        with open(cls.bricklayer_settings_filename, 'w+') as configfile:
+            config.write(configfile)
+
+
+    @classmethod
     def get_uuid(cls):
         cls.create_config_if_doesnt_exist()
         config = ConfigParser.ConfigParser()
@@ -47,4 +56,6 @@ class Configurator(object):
         It also will collect metrics about your programs to allow you to track your progress.
         """
         parser = argparse.ArgumentParser()
+        parser.add_argument('--api-key', help='Set an API key to use to post to the bricklayer backend')
+
         return parser
