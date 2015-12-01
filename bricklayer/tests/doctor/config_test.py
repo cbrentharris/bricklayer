@@ -33,7 +33,7 @@ class ConfiguratorTest(TestCase):
         self.assertIsInstance(config.get('General', 'uuid'), str)
 
     def test_it_returns_the_uuid_stored(self):
-        os.chdir(self.random_dor)
+        os.chdir(self.random_dir)
         random_uuid = Configurator.get_uuid()
         config = ConfigParser.RawConfigParser()
         config.read([self.random_dir + '/.bricklayer/settings.cfg'])

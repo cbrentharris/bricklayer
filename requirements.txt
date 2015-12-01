@@ -2,3 +2,4 @@ Jinja2
 radon
 nose
 requests
+responses
