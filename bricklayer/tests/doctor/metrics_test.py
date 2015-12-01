@@ -3,27 +3,26 @@ from bricklayer.doctor.metrics import Metrics
 import os
 
 class MetricsTest(TestCase):
-    def test_it_collects_complexity(self):
-        m = Metrics()
+
+    def setUp(self):
+        self.metrics = Metrics()
         filename = os.path.dirname(os.path.realpath(__file__)) + '/simple_module.py'
-        m.collect_metrics(filename)
-        self.assertEqual(m.cc_response[0].complexity, 2)
+        self.metrics.collect_metrics(filename)
+
+    def test_it_collects_complexity(self):
+        self.assertEqual(self.metrics.cyclomatic_complexity, 2)
 
     def test_it_collects_sloc(self):
-        m = Metrics()
-        filename = os.path.dirname(os.path.realpath(__file__)) + '/simple_module.py'
-        m.collect_metrics(filename)
-        self.assertEqual(m.raw_response.sloc, 5)
+        self.assertEqual(self.metrics.source_lines_of_code, 5)
 
     def test_it_collects_user_defined_functions(self):
-        m = Metrics()
-        filename = os.path.dirname(os.path.realpath(__file__)) + '/simple_module.py'
-        m.collect_metrics(filename)
-        self.assertEqual(m.user_defined_functions, 1)
+        self.assertEqual(self.metrics.user_defined_functions, 1)
 
     def test_it_collects_comments(self):
-        m = Metrics()
-        filename = os.path.dirname(os.path.realpath(__file__)) + '/simple_module.py'
-        m.collect_metrics(filename)
-        self.assertEqual(m.raw_response.comments, 1)
+        self.assertEqual(self.metrics.comments, 1)
+
+    def test_it_collects_the_program_name(self):
+        self.assertEqual(self.metrics.program_name,  os.path.dirname(os.path.realpath(__file__)) + '/simple_module.py')
+
+
 

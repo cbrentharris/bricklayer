@@ -6,7 +6,5 @@ def main():
     Configurator.create_config_if_doesnt_exist()
     parser = Configurator.generate_parser()
 
-    
-
 if __name__ == "__main__":
     main()

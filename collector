@@ -1,0 +1,16 @@
+#!/usr/bin/python
+from bricklayer.doctor.config import Configurator
+from bricklayer.doctor.metrics import Metrics
+from bricklayer.backend.api import BackendApi
+
+def main()
+    Configurator.create_config_if_doesnt_exist()
+    parser = Configurator.generate_parser()
+    parser.parse_args()
+    m = Metrics()
+    m.collect_metrics
+    BackendApi.
+
+
+if __name__ == '__main__':
+    main()
