@@ -6,10 +6,18 @@ from bricklayer.backend.api import BackendApi
 def main()
     Configurator.create_config_if_doesnt_exist()
     parser = Configurator.generate_parser()
-    parser.parse_args()
-    m = Metrics()
-    m.collect_metrics
-    BackendApi.
+    args = parser.parse_args()
+    if args.filename:
+        m = Metrics()
+        m.collect_metrics(args.filename)
+        BackendApi.post_metrics(
+            source_lines_of_code=m.source_lines_of_code,
+            comments=m.comments,
+            cyclomatic_complexity=m.cyclomatic_complexity,
+            program_name=args.filename,
+            user_defined_functions=m.user_defined_functions
+            level=1
+        )
 
 
 if __name__ == '__main__':

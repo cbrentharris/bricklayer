@@ -61,5 +61,5 @@ class Configurator(object):
         """
         parser = argparse.ArgumentParser()
         parser.add_argument('--api-key', help='Set an API key to use to post to the bricklayer backend')
-
+        parser.add_argument('--filename' help='The name of the file to inspect')
         return parser
