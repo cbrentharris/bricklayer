@@ -1,3 +1,4 @@
+from bricklayer.levels.level_1 import *
 # Comment
 def fib(n):
     if n < 2:
