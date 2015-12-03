@@ -11,7 +11,7 @@ class BackendApi(object):
 
     @staticmethod
     def post_metrics(**metrics):
-        requests.post(BRICKLAYER_API_METRICS_ENDPOINT, data=self.metrics)
+        requests.post(BRICKLAYER_API_METRICS_ENDPOINT, data=metrics)
 
 
 class BackendApiMock(object):

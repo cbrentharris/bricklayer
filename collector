@@ -3,7 +3,7 @@ from bricklayer.doctor.config import Configurator
 from bricklayer.doctor.metrics import Metrics
 from bricklayer.backend.api import BackendApi
 
-def main()
+def main():
     Configurator.create_config_if_doesnt_exist()
     parser = Configurator.generate_parser()
     args = parser.parse_args()
@@ -14,9 +14,9 @@ def main()
             source_lines_of_code=m.source_lines_of_code,
             comments=m.comments,
             cyclomatic_complexity=m.cyclomatic_complexity,
-            program_name=args.filename,
-            user_defined_functions=m.user_defined_functions
-            level=1
+            filename=args.filename,
+            user_defined_functions=m.user_defined_functions,
+            level=m.level
         )
 
 
