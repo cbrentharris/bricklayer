@@ -10,7 +10,7 @@ setup(name='Bricklayer',
     author_email='cbrentharris@gmail.com',
     url='http://wintercoding.club/',
     packages=['bricklayer'],
-    scripts=['doctor', 'collector'],
+    scripts=['bin/bricklayer'],
 	test_suite='nose.collector',
 	tests_require=['nose'],
 )
