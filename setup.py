@@ -1,7 +1,5 @@
 #!/usr/bin/env python
-
-#from distutils.core import setup
-from setuptools import setup
+from setuptools import setup, find_packages
 
 setup(name='Bricklayer',
     version='1.0',
@@ -9,8 +7,12 @@ setup(name='Bricklayer',
     author='Christopher Harris',
     author_email='cbrentharris@gmail.com',
     url='http://wintercoding.club/',
-    packages=['bricklayer'],
-    scripts=['bin/bricklayer'],
+    packages=find_packages(),
+    entry_points = {
+        'console_scripts' : [
+            'bricklayer = bricklayer:main'
+        ]
+    },
 	test_suite='nose.collector',
 	tests_require=['nose'],
 )
