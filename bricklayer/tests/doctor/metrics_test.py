@@ -28,4 +28,3 @@ class MetricsTest(TestCase):
         self.assertEqual(self.metrics.level, 1)
 
 
-
