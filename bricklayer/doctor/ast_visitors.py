@@ -23,3 +23,13 @@ class ImportedModuleVisitor(ast.NodeVisitor):
         for alias in node.names:
             self.imports.append(alias.name)
 
+
+class CalledFunctionVisitor(ast.NodeVisitor):
+
+    def __init__(self):
+        super(CalledFunctionVisitor, self).__init__()
+        self.functions = []
+
+    def visit_Call(self, node):
+        self.functions.append(node.func.id)
+

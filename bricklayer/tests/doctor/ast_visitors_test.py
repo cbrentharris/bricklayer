@@ -22,6 +22,15 @@ import bricklayer.levels.level_2
         v.visit(ast.parse(code))
         self.assertEqual(v.imports, ['level_1', 'bricklayer.levels.level_2'])
 
+    def test_it_gets_all_called_functions(self):
+        code = """
+f('hello')
+x(123)
+        """
+        v = CalledFunctionVisitor()
+        v.visit(ast.parse(code))
+        self.assertEqual(v.functions, ['f', 'x'])
+
     
         
         
