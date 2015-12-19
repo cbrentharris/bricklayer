@@ -17,11 +17,11 @@ class ImportedModuleVisitor(ast.NodeVisitor):
 
     def visit_Import(self, node):
         for alias in node.names:
-            self.imports.append(alias.name)
+            self.imports.append((alias.name, None))
 
     def visit_ImportFrom(self, node):
         for alias in node.names:
-            self.imports.append(alias.name)
+            self.imports.append((alias.name, node.module))
 
 
 class CalledFunctionVisitor(ast.NodeVisitor):

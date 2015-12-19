@@ -81,3 +81,8 @@ class HelpMessages(object):
    cat
    dog
     """
+
+    INCORRECT_FUNCTION_NAME = """
+    Oops! It appears that you tried to use a function that is not available - {}. Did you mean to try 
+    one of these:\n{} 
+    """

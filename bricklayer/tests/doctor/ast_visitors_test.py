@@ -20,7 +20,7 @@ import bricklayer.levels.level_2
         """
         v = ImportedModuleVisitor()
         v.visit(ast.parse(code))
-        self.assertEqual(v.imports, ['level_1', 'bricklayer.levels.level_2'])
+        self.assertEqual(v.imports, [('level_1', 'bricklayer.levels'), ('bricklayer.levels.level_2', None)])
 
     def test_it_gets_all_called_functions(self):
         code = """

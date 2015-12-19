@@ -3,3 +3,4 @@ radon
 nose
 requests
 responses
+RestrictedPython
