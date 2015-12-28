@@ -20,6 +20,7 @@ class Checker(object):
         can_be_compiled = self.check_program_can_be_compiled(program_name)
         if can_be_compiled:
             self.check_program_is_using_appropriate_constructs(program_name)
+            self.check_program_isnt_mispelling_functions(program_name)
 
     def check_program_can_be_compiled(self, program_name):
         try:

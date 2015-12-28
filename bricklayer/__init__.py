@@ -2,6 +2,7 @@ import argparse
 import py_compile
 from bricklayer.doctor.config import Configurator
 from bricklayer.doctor.metrics import Metrics
+from bricklayer.doctor.checks import Checker
 from bricklayer.backend.api import BackendApi
 
 def create_parser():
@@ -11,7 +12,8 @@ def create_parser():
     return parser
 
 def diagnose(filename):
-    pass
+    checker = Checker()
+    checker.check_program(filename)
 
 def cannot_be_compiled(filename):
     try:

@@ -1,3 +1,5 @@
+from bricklayer.utils.colors import Colors
+
 u"""
     The following constants will be used in collecting metrics.
 """
@@ -56,7 +58,7 @@ LEVEL_1_PREDEFINED_FUNCTIONS = [
 
 class HelpMessages(object):
     BAD_INDENTATION = """
-    Oops! it appears that there was an indentation error. Spacing is **very** important in python.
+    {warning}Oops!{end_color} it appears that there was an indentation error. Spacing is {warning}**very**{end_color} important in python.
     Please look at your code carefully to make sure all the spacing is correct.
     It can also help to have a second set of eyes look over the code as well. 
     
@@ -76,13 +78,13 @@ class HelpMessages(object):
    error happens. To correct, the working code looks more like
 
    >>> for animal in animals:
-   ...     print animal
+   ...{warning}     {end_color}print animal
    ...
    cat
    dog
-    """
+    """.format(warning=Colors.Background.WARNING, end_color=Colors.ENDC)
 
     INCORRECT_FUNCTION_NAME = """
-    Oops! It appears that you tried to use a function that is not available - {}. Did you mean to try 
-    one of these:\n{} 
+    Oops! It appears that you tried to use a function that is not available - {}. 
+    Did you mean to try one of these:\n{} 
     """
