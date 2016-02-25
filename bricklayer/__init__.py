@@ -9,6 +9,8 @@ def create_parser():
     parser = argparse.ArgumentParser()
     parser.add_argument('-d', '--diagnose', help='Use diagnose if you are having issues with your program and would like to see some help about what is wrong')
     parser.add_argument('-c', '--collect', help='Submit data to bricklayer')
+    parser.add_argument('-k', '--key', help='Set an API key to use to post to the bricklayer backend')
+    parser.add_argument('-hn', '--hostname', help='The hostname of your bricklayer backend')
     return parser
 
 def diagnose(filename):
@@ -22,8 +24,7 @@ def cannot_be_compiled(filename):
     except py_compile.PyCompileError as e:
         return True
 
-def collect_data(filename):
-    Configurator.create_config_if_doesnt_exist()
+def collect(filename):
     if not filename.endswith('.py'):
         raise ValueError("You must specify a python file to collect data about. Caanot collect data about {}".format(filename))
     if cannot_be_compiled(filename):
@@ -42,10 +43,15 @@ def collect_data(filename):
 def main():
     parser = create_parser()
     args = parser.parse_args()
+    Configurator.create_config_if_doesnt_exist()
+    if args.key:
+        Configurator.add_to_config('key', args.key)
+    if args.hostname:
+        configuration.add_to_config('hostname', args.hostname)
     if args.diagnose:
         diagnose(args.diagnose)
     if args.collect:
-        collect_data(args.collect)
+        collect(args.collect)
 
 
 if __name__ == '__main__': 

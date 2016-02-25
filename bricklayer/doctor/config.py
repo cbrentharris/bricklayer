@@ -53,13 +53,3 @@ class Configurator(object):
         config.read([cls.bricklayer_settings_filename])
         return config.get('General', 'uuid')
 
-    @staticmethod
-    def generate_parser():
-        description = """
-        The doctor module will tell you what might be wrong with your bricklayer program. 
-        It also will collect metrics about your programs to allow you to track your progress.
-        """
-        parser = argparse.ArgumentParser()
-        parser.add_argument('--api-key', help='Set an API key to use to post to the bricklayer backend')
-        parser.add_argument('--filename', help='The name of the file to inspect')
-        return parser
