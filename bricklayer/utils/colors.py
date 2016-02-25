@@ -7,8 +7,7 @@ class Colors:
         FAIL = '\033[91m'
     class Background:
         HEADER = '\033[45m'
-        BLUE = '\033[uguvldc
-        44m'
+        BLUE = '\033[44m'
         GREEN = '\033[42m'
         WARNING = '\033[43m'
         FAIL = '\033[41m'
