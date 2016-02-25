@@ -20,7 +20,7 @@ class Configurator(object):
             bricklayer_config_path = os.getcwd() + '/.bricklayer'
         # Next, check if our temp dir has a '.bricklayer' directory
         elif os.path.isdir(tempfile.gettempdir() + '/.bricklayer'):
-            bricklayer_config_Path = tempfile.gettempdir() + '/.bricklayer'
+            bricklayer_config_path = tempfile.gettempdir() + '/.bricklayer'
         # If we can create the config dir in our CWD, do it.
         elif os.access(os.getcwd(), os.W_OK):
             bricklayer_config_path = os.getcwd() + '/.bricklayer'
@@ -41,10 +41,17 @@ class Configurator(object):
     @classmethod
     def add_to_config(cls, key, value):
         cls.create_config_if_doesnt_exist()
-        config = ConfigParser.RawConfigParser()
+        config = ConfigParser.ConfigParser()
+        config.read([cls.bricklayer_settings_filename])
         config.set('General', key, value)
-        with open(cls.bricklayer_settings_filename, 'w+') as configfile:
-            config.write(configfile)
+        with open(cls.bricklayer_settings_filename, 'wb') as configfile:
+           config.write(configfile)
+
+    @classmethod
+    def get_from_config(cls, key):
+        config = ConfigParser.ConfigParser()
+        config.read([cls.bricklayer_settings_filename])
+        return config.get('General', key)
 
     @classmethod
     def get_uuid(cls):
