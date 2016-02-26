@@ -30,7 +30,7 @@ class ConfiguratorTest(TestCase):
 
     def test_it_returns_the_uuid_stored(self):
         os.chdir(self.random_dir)
-        random_uuid = Configurator.get_uuid()
+        random_uuid = Configurator.get('uuid')
         config = ConfigParser.RawConfigParser()
         config.read([self.random_dir + '/.bricklayer/settings.cfg'])
         self.assertEqual(config.get('General', 'uuid'), random_uuid)
@@ -50,10 +50,10 @@ class ConfiguratorTest(TestCase):
     def test_it_adds_to_the_config_file(self):
         os.chdir(self.random_dir)
         Configurator.create_config_if_doesnt_exist()
-        Configurator.add_to_config('name', 'chris')
-        self.assertIsNotNone(Configurator.get_from_config('name'))
+        Configurator.set('name', 'chris')
+        self.assertIsNotNone(Configurator.get('name'))
 
     def test_it_gets_from_the_config_file(self):
         os.chdir(self.random_dir)
         Configurator.create_config_if_doesnt_exist()
-        self.assertIsNotNone(Configurator.get_from_config('uuid'))
+        self.assertIsNotNone(Configurator.get('uuid'))

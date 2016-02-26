@@ -39,7 +39,7 @@ class Configurator(object):
                 config.write(configfile)
 
     @classmethod
-    def add_to_config(cls, key, value):
+    def set(cls, key, value):
         cls.create_config_if_doesnt_exist()
         config = ConfigParser.ConfigParser()
         config.read([cls.bricklayer_settings_filename])
@@ -48,15 +48,10 @@ class Configurator(object):
            config.write(configfile)
 
     @classmethod
-    def get_from_config(cls, key):
+    def get(cls, key):
+        cls.create_config_if_doesnt_exist()
         config = ConfigParser.ConfigParser()
         config.read([cls.bricklayer_settings_filename])
         return config.get('General', key)
 
-    @classmethod
-    def get_uuid(cls):
-        cls.create_config_if_doesnt_exist()
-        config = ConfigParser.ConfigParser()
-        config.read([cls.bricklayer_settings_filename])
-        return config.get('General', 'uuid')
 
