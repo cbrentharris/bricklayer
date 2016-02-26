@@ -1,5 +1,6 @@
 recursive-include bricklayer *.py
 recursive-include bricklayer *.pickle
+recursive-include bricklayer *.lxfml
 include README.md
 include LICENSE.txt
 include requirements.txt

@@ -15,4 +15,5 @@ setup(name='Bricklayer',
     },
     test_suite='nose.collector',
     tests_require=['nose'],
+    include_package_data=True,
 )
