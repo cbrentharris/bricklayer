@@ -3,15 +3,19 @@ u"""
 The backend API is used to collect user metrics
 
 """
-from bricklayer.backend.settings import BRICKLAYER_API_METRICS_ENDPOINT
+from bricklayer.doctor.config import Configurator
 import requests
 import responses
 
 class BackendApi(object):
 
+    @classmethod
+    def post_metrics(cls, **metrics):
+        requests.post(cls.metrics_endpoint(), data=metrics)
+
     @staticmethod
-    def post_metrics(**metrics):
-        requests.post(BRICKLAYER_API_METRICS_ENDPOINT, data=metrics)
+    def metrics_endpoint():
+        return "http://{}/metrics/{}".format(Configurator.get("hostname"), Configurator.get("uuid"))
 
 
 class BackendApiMock(object):
@@ -23,9 +27,9 @@ class BackendApiMock(object):
         missing_keys = set(REQUIRED_KEYS) - set(metrics.keys())
         error_json = {}
         if len(missing_keys) > 0:
-            responses.add(responses.POST, BRICKLAYER_API_METRICS_ENDPOINT, body={'error' : 'Missing keys -- {}'.format(','.join(missing_keys))}, status=400, content_type='application/json')
-            return requests.post(BRICKLAYER_API_METRICS_ENDPOINT, data=metrics)
+            responses.add(responses.POST, "http://localhost", body={'error' : 'Missing keys -- {}'.format(','.join(missing_keys))}, status=400, content_type='application/json')
+            return requests.post("http://localhost", data=metrics)
         else:
-            responses.add(responses.POST, BRICKLAYER_API_METRICS_ENDPOINT, status=200, content_type="application/json")
-            return requests.post(BRICKLAYER_API_METRICS_ENDPOINT, data=metrics)
+            responses.add(responses.POST, "http://localhost", status=200, content_type="application/json")
+            return requests.post("http://localhost", data=metrics)
             
