@@ -4,6 +4,7 @@ from bricklayer.doctor.config import Configurator
 from bricklayer.doctor.metrics import Metrics
 from bricklayer.doctor.checks import Checker
 from bricklayer.backend.api import BackendApi
+from bricklayer.utils.downloader import Downloader
 
 def create_parser():
     parser = argparse.ArgumentParser()
@@ -11,6 +12,7 @@ def create_parser():
     parser.add_argument('-c', '--collect', help='Submit data to bricklayer')
     parser.add_argument('-k', '--key', help='Set an API key to use to post to the bricklayer backend')
     parser.add_argument('-hn', '--hostname', help='The hostname of your bricklayer backend')
+    parser.add_argument('-dl', '--download', help='Downlaod lego digital designer.', action='store_true')
     return parser
 
 def diagnose(filename):
@@ -52,6 +54,8 @@ def main():
         diagnose(args.diagnose)
     if args.collect:
         collect(args.collect)
+    if args.download:
+        Downloader.download_ldd()
 
 
 if __name__ == '__main__': 

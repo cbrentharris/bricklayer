@@ -19,6 +19,13 @@ class CommandLineTest(TestCase):
                 main()
                 mock_diagnose.assert_called_with('compileable.py')
 
+    def test_it_downloads_ldd_via_the_command_line(self):
+        args = ['bricklayer', '--download'] 
+        with mock.patch('sys.argv', args):
+            with mock.patch('bricklayer.utils.downloader.Downloader.download_ldd') as mock_download:
+                main()
+                mock_download.assert_called_with()
+
     @mock.patch('bricklayer.doctor.checks.Checker.check_program')
     def test_it_diagnoses_a_file(self, mock_check):
         compileable_full_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'compileable.py')
