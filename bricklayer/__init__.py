@@ -47,9 +47,9 @@ def main():
     args = parser.parse_args()
     Configurator.create_config_if_doesnt_exist()
     if args.key:
-        Configurator.add_to_config('key', args.key)
+        Configurator.add('key', args.key)
     if args.hostname:
-        configuration.add_to_config('hostname', args.hostname)
+        Configurator.add('hostname', args.hostname)
     if args.diagnose:
         diagnose(args.diagnose)
     if args.collect:
