@@ -1,5 +1,6 @@
 from bricklayer.space.virtual_space import VirtualSpace
 from bricklayer.pieces.bricks import *
+from bricklayer.utils.commands import open_ldd_command
 from tempfile import NamedTemporaryFile
 import subprocess
 
@@ -88,5 +89,5 @@ def put_2D(dimensions, point, brick):
 def output():
     f = NamedTemporaryFile(suffix='.lxfml')
     vs.output_to_file(f.name)
-    subprocess.call(['open', '-W', f.name])
+    subprocess.call(open_ldd_command(f.name))
     
