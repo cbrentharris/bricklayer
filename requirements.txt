@@ -4,3 +4,4 @@ nose
 requests
 responses
 RestrictedPython
+progressbar
