@@ -8,7 +8,7 @@ class DownloaderTest(TestCase):
     @mock.patch("platform.system", return_value="Darwin")
     def test_it_downloads_the_mac_zip(self, mock_system, mock_retrieve):
         Downloader.download_ldd()
-        mock_retrieve.assert_called_with(Downloader.MAC_DOWNLOAD_URL, "ldd.zip")
+        mock_retrieve.assert_called_with(Downloader.MAC_DOWNLOAD_URL, "ldd.zip", reporthook=Downloader.download_progress)
 
     @mock.patch("urllib.urlretrieve")
     @mock.patch("platform.system", return_value="Windows")
