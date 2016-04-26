@@ -1,7 +1,7 @@
 import ast
 
-class UserDefinedFunctionVisitor(ast.NodeVisitor):
 
+class UserDefinedFunctionVisitor(ast.NodeVisitor):
     def __init__(self):
         super(UserDefinedFunctionVisitor, self).__init__()
         self.functions = []
@@ -9,8 +9,8 @@ class UserDefinedFunctionVisitor(ast.NodeVisitor):
     def visit_FunctionDef(self, node):
         self.functions.append(node.name)
 
-class ImportedModuleVisitor(ast.NodeVisitor):
 
+class ImportedModuleVisitor(ast.NodeVisitor):
     def __init__(self):
         super(ImportedModuleVisitor, self).__init__()
         self.imports = []
@@ -25,11 +25,9 @@ class ImportedModuleVisitor(ast.NodeVisitor):
 
 
 class CalledFunctionVisitor(ast.NodeVisitor):
-
     def __init__(self):
         super(CalledFunctionVisitor, self).__init__()
         self.functions = []
 
     def visit_Call(self, node):
         self.functions.append(node.func.id)
-

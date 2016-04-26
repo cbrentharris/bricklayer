@@ -7,8 +7,8 @@ from bricklayer.doctor.config import Configurator
 import requests
 import responses
 
-class BackendApi(object):
 
+class BackendApi(object):
     @classmethod
     def post_metrics(cls, **metrics):
         requests.post(cls.metrics_endpoint(), data=metrics)
@@ -19,7 +19,6 @@ class BackendApi(object):
 
 
 class BackendApiMock(object):
-    
     @staticmethod
     @responses.activate
     def post_metrics(**metrics):
@@ -27,9 +26,10 @@ class BackendApiMock(object):
         missing_keys = set(REQUIRED_KEYS) - set(metrics.keys())
         error_json = {}
         if len(missing_keys) > 0:
-            responses.add(responses.POST, "http://localhost", body={'error' : 'Missing keys -- {}'.format(','.join(missing_keys))}, status=400, content_type='application/json')
+            responses.add(responses.POST, "http://localhost",
+                          body={'error': 'Missing keys -- {}'.format(','.join(missing_keys))}, status=400,
+                          content_type='application/json')
             return requests.post("http://localhost", data=metrics)
         else:
             responses.add(responses.POST, "http://localhost", status=200, content_type="application/json")
             return requests.post("http://localhost", data=metrics)
-            

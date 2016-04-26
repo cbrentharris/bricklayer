@@ -9,12 +9,10 @@ Examples include:
 """
 from radon.complexity import cc_visit
 from radon.raw import analyze
-from bricklayer.utils.logger import Logger
-from bricklayer.doctor.constants import *
 import ast
 
+
 class Metrics(object):
-    
     def collect_metrics(self, program_name):
         program_file = open(program_name, 'r')
         code = program_file.read()
@@ -56,5 +54,3 @@ class Metrics(object):
             return int(level[-1])
         except:
             return None
-     
-

@@ -1,11 +1,10 @@
-import argparse
 import os
 import tempfile
 import ConfigParser
 import uuid
 
-class Configurator(object):
 
+class Configurator(object):
     @classmethod
     def create_config_if_doesnt_exist(cls):
         u"""
@@ -34,7 +33,7 @@ class Configurator(object):
         if not os.path.exists(bricklayer_config_path + '/settings.cfg'):
             config = ConfigParser.RawConfigParser()
             config.add_section('General')
-            config.set('General', 'uuid', str(uuid.uuid4())) 
+            config.set('General', 'uuid', str(uuid.uuid4()))
             with open(bricklayer_config_path + '/settings.cfg', 'w+') as configfile:
                 config.write(configfile)
 
@@ -45,7 +44,7 @@ class Configurator(object):
         config.read([cls.bricklayer_settings_filename])
         config.set('General', key, value)
         with open(cls.bricklayer_settings_filename, 'wb') as configfile:
-           config.write(configfile)
+            config.write(configfile)
 
     @classmethod
     def get(cls, key):
@@ -53,5 +52,3 @@ class Configurator(object):
         config = ConfigParser.ConfigParser()
         config.read([cls.bricklayer_settings_filename])
         return config.get('General', key)
-
-
