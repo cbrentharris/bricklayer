@@ -12,7 +12,7 @@
     {% for coord in coords %}
         <Brick refID="{{loop.index}}" designID="{{coord.brick.shape}}" itemNos="777">
             <Part refID="{{loop.index}}" designID="{{coord.brick.shape}}" materials="{{coord.brick.color}}" decoration="777">
-                <Bone refID="{{loop.index}}" transformation="{{coord.brick.orientation}},{{coord}}">
+                <Bone refID="{{loop.index}}" transformation="{{coord.brick.orientation()}},{{coord}}">
                 </Bone> 
             </Part>
         </Brick>

@@ -1,7 +1,8 @@
 from unittest import TestCase
-from bricklayer.space.virtual_space import Coordinate, VirtualSpace
+from bricklayer.space.virtual_space import Coordinate, VirtualSpace, RotationMatrix
 from bricklayer.utils.bricklayer_exceptions import OutOfBoundsException
 from bricklayer.pieces.bricks import RED_BRICK, BLACK_BRICK
+from math import pi
 
 
 class CoordinateTest(TestCase):
@@ -36,3 +37,10 @@ class VirtualSpaceTest(TestCase):
         self.assertEqual(vs.coords[(1, 1, 1)].brick, RED_BRICK)
         self.assertTrue((2, 2, 2) in vs.coords)
         self.assertEqual(vs.coords[(2, 2, 2)].brick, BLACK_BRICK)
+
+    def test_it_rotates_a_brick(self):
+        upper_bounds = (10, 10, 10)
+        vs = VirtualSpace(upper_bounds)
+        vs.rotation_matrices.append(RotationMatrix.rotate_Y(pi / 4))
+        vs.add_brick((1, 1, 1), RED_BRICK)
+        self.assertEqual(vs.coords[(1, 1, 1)].brick.orientation(), "0.707106781187,0.0,0.707106781187,0.0,1.0,0.0,-0.707106781187,0.0,0.707106781187")

@@ -3,5 +3,5 @@ radon
 nose
 requests
 responses
-RestrictedPython
 progressbar
+numpy

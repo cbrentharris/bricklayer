@@ -9,4 +9,4 @@ class BricksTest(TestCase):
 
     def test_default_orientation_is_normal(self):
         brick = Brick(Color.RED, Shape.BIT)
-        self.assertEqual(brick.orientation, Orientation.NORMAL)
+        self.assertEqual(brick.orientation(), '1.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,1.0')

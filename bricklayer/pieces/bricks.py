@@ -1,5 +1,6 @@
 from bricklayer.pieces.enums import Color, Shape, Orientation
 from math import sin, cos
+import numpy
 
 class Brick:
     u"""
@@ -9,8 +10,13 @@ class Brick:
     def __init__(self, color, shape, orientation=Orientation.NORMAL):
         self.color = color
         self.shape = shape
-        self.orientation = orientation
+        self.rotation_matrix = numpy.identity(3)
 
+    def update_rotation_matrix(self, matrix):
+        self.rotation_matrix = numpy.dot(self.rotation_matrix, matrix)
+
+    def orientation(self):
+        return ",".join(map(str, [i for i in self.rotation_matrix.flat]))
 
     def calculate_2D_rotation(self, theta):
         # For 2D, we will rotate about the Y axis
@@ -20,8 +26,6 @@ class Brick:
             -sin(theta), 0, cos(theta)
         ]
         self.orientation = ",".join(map(str, matrix))
-        print self.orientation
-
 
 
 # Grayscale bricks
