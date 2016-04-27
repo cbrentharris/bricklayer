@@ -2,6 +2,7 @@ from bricklayer.pieces.enums import Dimensions
 from bricklayer.utils.bricklayer_exceptions import OutOfBoundsException
 from jinja2 import Environment, PackageLoader
 import math
+import copy
 
 
 class Coordinate:
@@ -87,6 +88,20 @@ class VirtualSpace:
             self.add_brick((x1, y1, z1), brick)
             x1 += 1 if x1 < x2 else 0
             y1 += 1 if y1 < y2 else 0
+            z1 += 1 if z1 < z2 else 0
+
+    def line_XZ(self, point_1, point_2, brick):
+        x1, z1 = point_1
+        x2, z2 = point_2
+        brick_copy = copy.deepcopy(brick)
+        delta_x = abs(x2 - x1)
+        delta_z = abs(z2 - z1)
+        theta = math.atan2(delta_x, delta_x)
+        brick_copy.calculate_2D_rotation(theta)
+        print point_1, point_2, (delta_z, delta_x), theta
+        while any([x1 < x2, z1 < z2]):
+            self.add_brick((x1, 0, z1), brick_copy)
+            x1 += 1 if x1 < x2 else 0
             z1 += 1 if z1 < z2 else 0
 
     def cylinder(self, radius, height, brick, x_center=0, z_center=0):
