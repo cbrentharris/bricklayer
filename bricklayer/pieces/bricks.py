@@ -13,6 +13,7 @@ class Brick:
 
 
     def calculate_2D_rotation(self, theta):
+        # For 2D, we will rotate about the Y axis
         matrix = [
             cos(theta), 0, sin(theta),
             0, 1, 0,
