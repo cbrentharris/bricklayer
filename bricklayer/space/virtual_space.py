@@ -110,6 +110,34 @@ class VirtualSpace:
             x1 += x_offset if x1 < x2 else 0
             z1 += z_offset if z1 < z2 else 0
 
+    def bresenhams_line(self, point_1, point_2, brick):
+        """
+        https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
+        """
+        x1, z1 = point_1
+        x2, z2 = point_2
+        delta_x = x2 - x1
+        delta_z = z2 - z1
+        error = -1.0
+        steep_slope = delta_z > delta_x
+        if steep_slope:
+            start, end = z1, z2
+            delta_err = abs(float(delta_x) / delta_z)
+            steep_axis = x1
+        else:
+            start, end = x1, x2
+            delta_err = abs(float(delta_z) / delta_x)
+            steep_axis = z1
+        for shallow_axis in range(start, end):
+            if steep_slope:
+                self.add_brick((steep_axis, 0, shallow_axis), brick)
+            else:
+                self.add_brick((shallow_axis, 0, steep_axis), brick)
+            error += delta_err
+            if error >= 0.0:
+                steep_axis += 1
+                error -= 1
+
     def smooth_line_xz(self, point_1, point_2, brick):
         x1, z1 = tuple(a + b for a, b in zip(point_1, self.offset))
         x2, z2 = tuple(a + b for a, b in zip(point_2, self.offset))
@@ -123,6 +151,35 @@ class VirtualSpace:
             z1 += 1 * cos(theta) if z1 < z2 else 0
         self.rotation_matrices.pop()
 
+    def bresenhams_circle(self, radius, brick, x_center=0, z_center=0):
+        """
+        http://web.engr.oregonstate.edu/~sllu/bcircle.pdf
+        """
+        x = radius
+        z = 0
+        delta_x = 1 - 2 * radius
+        delta_z = 1
+        radius_error = 0
+        while x >= z:
+            def put_brick_in_octaves(_x, _z):
+                self.add_brick((x_center + _x, 0, z_center + _z), brick)
+                self.add_brick((x_center - _x, 0, z_center + _z), brick)
+                self.add_brick((x_center - _x, 0, z_center - _z), brick)
+                self.add_brick((x_center + _x, 0, z_center - _z), brick)
+                self.add_brick((x_center + _z, 0, z_center + _x), brick)
+                self.add_brick((x_center - _z, 0, z_center + _x), brick)
+                self.add_brick((x_center - _z, 0, z_center - _x), brick)
+                self.add_brick((x_center + _z, 0, z_center - _x), brick)
+
+            put_brick_in_octaves(x, z)
+            z += 1
+            radius_error += delta_z
+            delta_z += 2
+            if 2 * radius_error + delta_x > 0:
+                x -= 1
+                radius_error += delta_x
+                delta_x += 2
+
     def cylinder(self, radius, height, brick, x_center=0, z_center=0):
         while radius > 0:
             self.hollow_cylinder(radius, height, brick, x_center=x_center, z_center=z_center)
@@ -130,9 +187,9 @@ class VirtualSpace:
 
     def hollow_cylinder(self, radius, height, brick, x_center=0, z_center=0):
         for i in range(height + 1):
-            self.circle(radius, brick, x_center=x_center, z_center=z_center, y_offset=i)
+            self.bresenhams_circle(radius, brick, x_center=x_center, z_center=z_center, y_offset=i)
 
-    def circle_xz(self, radius, brick, x_center=0, z_center=0, y_offset=0):
+    def smooth_circle_xz(self, radius, brick, x_center=0, z_center=0, y_offset=0):
         theta = 0
         while theta <= 2 * pi:
             x = x_center + radius * cos(theta)

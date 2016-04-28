@@ -15,15 +15,19 @@ def set_offset_2D(x, z):
 
 
 def line_xz(point_1, point_2, brick):
-    vs.line_xz(point_1, point_2, brick)
+    vs.bresenhams_line(point_1, point_2, brick)
 
 
 def smooth_line_xz(point_1, point_2, brick):
     vs.smooth_line_xz(point_1, point_2, brick)
 
 
-def circle_xz(radius, brick, x_center=0, z_center=0, ):
-    vs.circle_xz(radius, brick, x_center=x_center, z_center=z_center)
+def circle_xz(radius, brick, x_center=0, z_center=0):
+    vs.bresenhams_circle(radius, brick, x_center=x_center, z_center=z_center)
+
+
+def smooth_circle_xz(radius, brick, x_center=0, z_center=0):
+    vs.smooth_circle_xz(radius, brick, x_center=x_center, z_center=z_center)
 
 
 def rotate_X(theta):
