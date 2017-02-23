@@ -6,7 +6,7 @@ setup(name='Bricklayer',
     description='Lego Digital Designer Education Tool',
     author='Christopher Harris',
     author_email='cbrentharris@gmail.com',
-    url='http://wintercoding.club/',
+    url='https://bitbucket.org/pbergero/deep-impac',
     packages=find_packages(),
     entry_points = {
         'console_scripts' : [

@@ -18,8 +18,11 @@ class Metrics(object):
         code = program_file.read()
         cc_response = cc_visit(code)
         raw_response = analyze(code)
+        self.cyclomatic_complexity = None
         if cc_response:
             self.cyclomatic_complexity = cc_response[0].complexity
+        self.source_lines_of_code = 0
+        self.comments = 0
         if raw_response:
             self.source_lines_of_code = raw_response.sloc
             self.comments = raw_response.comments
@@ -49,8 +52,8 @@ class Metrics(object):
         # Right now, the modules are like
         # from bricklayer.levels.level_x import ...
         try:
-            _, _, level = module_string.split('.')
-            assert 'level_' in level
-            return int(level[-1])
+            # _, _, level = module_string.split('.')
+            # assert 'level_' in level
+            return int(module_string[-1])
         except:
             return None

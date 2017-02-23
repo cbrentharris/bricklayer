@@ -1,0 +1,87 @@
+module TranspilerV2
+
+strategy main:
+
+    <sml_prog>_in -> <sml_prog>_in if {
+      <sml_prog>_out = TDL transpile <sml_prog>_in
+      andalso sml.ppToFile(<sml_prog>_out, "transpiled.py")
+    }
+
+strategy transpile:
+    function
+    <+
+    open
+    <+
+    no_op_zero_arg_function_application
+    <+
+    no_op_many_arg_function_application
+    <+
+    un_curry_one_arg
+    <+
+    un_curry_two_args
+    <+
+    un_curry_three_args
+    <+
+    un_curry_four_args
+
+/** TODO:
+    Get it to add return only if necessary
+
+strategy function_with_expr_list:
+    funDec[:] fun <funId>_1 <funParameters>_1 <domainTypeOpt>_1 = ( <expr>_1 ; <exprSeq>_1 )
+*/
+
+strategy fun_body_to_python_fun_body:
+    funBody[:] <expr>_1 [:] ->
+    python_fun_body[:] <expr>_1 [:]
+
+strategy function:
+    funDec[:] fun <funId>_1 <funParameters>_1 <domainTypeOpt>_1 = <funBody>_1 [:] ->
+    python_function[:] def <funId>_1 <funParameters>_1 : <python_fun_body>_1 [:] if {
+      <python_fun_body>_1 = fun_body_to_python_fun_body <funBody>_1
+    }
+
+strategy open:
+    openStructure[:] open <openStructureIdList>_1 [:] ->
+    python_import[:] import <openStructureIdList>_1 [:]
+
+
+strategy no_op_zero_arg_function_application:
+    app[:] <firstBase>_1 ( ) [:] ->
+    app[:] <firstBase>_1 ( ) [:]
+
+strategy no_op_many_arg_function_application:
+    app[:] <firstBase>_1 ( <exprListOrSeq>_1 ) [:] ->
+    app[:] <firstBase>_1 ( <exprListOrSeq>_1 ) [:]
+
+strategy add_parenthesis_after_first_arg:
+    <firstBase>_1 ->
+    python_first_base[:] <firstBase>_1 ( [:]
+
+strategy un_curry_one_arg:
+    app[:] <firstBase>_1 <lastArg>_1 [:] ->
+    python_app[:] <python_first_base>_1 <lastArg>_1 ) [:] if {
+      <python_first_base>_1 = add_parenthesis_after_first_arg <firstBase>_1
+    }
+
+strategy un_curry_two_args:
+    app[:] <firstBase>_1 <base>_1 <lastArg>_1 [:] ->
+    python_app[:] <python_first_base>_1 <base>_1, <lastArg>_1 ) [:] if {
+      <python_first_base>_1 = add_parenthesis_after_first_arg <firstBase>_1
+    }
+
+strategy un_curry_three_args:
+    app[:] <firstBase>_1 <base>_1 <base>_2 <lastArg>_1 [:] ->
+    python_app[:] <python_first_base>_1 <base>_1 , <base>_2,  <lastArg>_1 ) [:] if {
+      <python_first_base>_1 = add_parenthesis_after_first_arg <firstBase>_1
+    }
+
+strategy un_curry_four_args:
+    app[:] <firstBase>_1 <base>_1 <base>_2 <base>_3 <lastArg>_1 [:] ->
+    python_app[:] <python_first_base>_1 <base>_1, <base>_2, <base>_3, <lastArg>_1 ) [:] if {
+      <python_first_base>_1 = add_parenthesis_after_first_arg <firstBase>_1
+    }
+
+
+
+end

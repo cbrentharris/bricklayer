@@ -1,0 +1,618 @@
+USE_LR_PARSER
+
+sml_prog
+
+%LEFT_ASSOC   "orelse"                                                  "L4" .
+%LEFT_ASSOC   "andalso"                                                 "L5" .
+
+%LEFT_ASSOC   "o" ":="                                                  "L13" .
+%LEFT_ASSOC   "=" "<>" "<" ">" "<=" ">="                                "L14" .
+%LEFT_ASSOC   "::" "@"                                                  "L15" .
+%LEFT_ASSOC   "+" "-" "^"                                               "L16" .
+%LEFT_ASSOC   "*" "/" "div" "mod"                                       "L17" .
+
+(* ================================================================================================================== *)
+<sml_prog>      ::= <entityList>
+                  | <entityList> <TopLevelFunctorStrSigDecList> (* handles no final semicolon *)
+(*                  | <entityList> <functorDec>                   (* handles no final semicolon *) *)
+                  | <entityList> <expr>                      .  (* handles no final semicolon *)
+
+(* We need to account for the special case where a program does not end with a semi-colon.
+   This is awkward, since semi-colons are optional in a variety of contexts.
+*)
+<entityList>    ::= <entity> <entityList> | <epsilon> .
+<entity>        ::= <skip>
+(*                  | <functorDecList> ";"           (* non-empty and no internal semi-colon seperators *) *)
+                  | <TopLevelFunctorStrSigDecList> ";"    (* non-empty and no internal semi-colon seperators *)
+                  | <expr> ";" .                   (* ideally, eof should also be like semicolon *)
+
+
+<skip>          ::= ";"  .
+
+(* skipOp is used to "extend" the syntax of SML to allow terminating semi-colons in letblocks,
+   expression sequences, and the "then" branch of conditional expressions. This will allow Delphi
+   to check for this common class of syntax error.
+*)
+<skipOpt>       ::= <skip> | <epsilon> .
+
+
+(* ================================================================================================================== *)
+(* ------------------------------------------ Top-level and Local ---------------------------------------------------- *)
+(* ================================================================================================================== *)
+
+<TopLevelFunctorStrSigDecList> ::= <FunctorStrSigDec> <TopLevelFunctorStrSigDecList> | <FunctorStrSigDec> .
+<FunctorStrSigDec> ::= <StrSigDec> | <functorDec> .
+
+<StrSigDecList> ::= <StrSigDec> <StrSigDecList>
+                  | <skip>      <StrSigDecList>
+                  | <epsilon> .
+
+<StrSigDec>     ::= <structureDec> | <signatureDec> | <dec> | <localDec> .
+
+
+<localDec>  ::= "local" <StrSigDecList> "in" <StrSigDecList> "end" .
+
+(* this occurs within a let-block *)
+<restrictedLocal> ::= "local" <decSkipList> "in" <decSkipList> "end" .
+
+(* ================================================================================================================== *)
+(* ------------------------------------------ Functors -------------------------------------------------------------- *)
+(* ================================================================================================================== *)
+<functorDecList> ::= <functorDec> <functorDecList> | <functorDec> .
+
+<functorDec> ::= "functor" <namedFunctorList> .
+
+<namedFunctorList> ::= <namedFunctor> "and" <namedFunctorList> | <namedFunctor> .
+
+<namedFunctor> ::= <id> "(" <functorParams> ")" <sigOpt> "=" <anonymousStruct> .
+
+<functorParams> ::= <simpleFunctorParam>
+                  | <specificationList> .
+
+<simpleFunctorParam> ::= <id> <sigMatch> .
+(* ================================================================================================================== *)
+(* ------------------------------------------ Structures ------------------------------------------------------------ *)
+(* ================================================================================================================== *)
+<structureDec> ::= "structure" <namedStructureList>  .
+
+<namedStructureList> ::= <namedStructure>
+                       | <namedStructure> "and" <namedStructureList> .
+
+<namedStructure> ::= <id> <sigOpt> "=" <anonymousStruct> .
+
+
+<anonymousStruct> ::= "struct" <StrSigDecList> "end"
+                    | <id>
+                    | <id> "(" <anonymousStruct> ")"
+                    | <id> "(" <StrSigDecList> ")"
+                    | "let" <StrSigDecList> "in" <anonymousStruct> "end" .
+
+
+(* ================================================================================================================== *)
+(* ------------------------------------------ Signatures ------------------------------------------------------------ *)
+(* ================================================================================================================== *)
+<sigOpt> ::= <opaqueSigMatch>
+           | <sigMatch>
+           | <epsilon> .
+
+
+(*
+What one often wants is a way to define truly abstract types at the module level,
+that is modules containing types for which the signature contains all the required
+information, and only such. This agrees well with most accounts of viewing signatures
+as interfaces, and greatly increases the effectiveness of signatures to help
+during integration of independently programmed components: requiring all the information
+about a module to be centrally described in a signature helps reduce the
+amount of hidden dependencies one has to worry about.
+
+To implement such a view of types in signatures, SML defines an operator :>
+for so-called opaque signature matching, where all the information to be used in the
+view is taken from the signature to be matched.
+
+Source: Notes on Programming Standard ML of New Jersey.
+*)
+
+<opaqueSigMatch> ::= ":>" <anonymousSig> .
+<sigMatch>       ::= ":" <anonymousSig> .
+<sigMatchOpt>    ::= <sigMatch> | <epsilon> .
+
+
+
+<signatureDec> ::= <namedSignatureList> .
+
+<namedSignatureList> ::= <namedSignature>
+                       | <namedSignature> "and" <namedSignatureList> .
+
+<namedSignature> ::= "signature" <id> "=" <anonymousSig> .
+
+<anonymousSig>  ::= <id> <whereTypeClauseList>
+                  | "sig" <specificationList> "end" <whereTypeClauseList> .
+
+<whereTypeClauseList> ::= <whereTypeClause> <whereTypeClauseList> | <epsilon> .
+<whereTypeClause>     ::= "where" <typeClause> .
+
+<typeClause> ::= <typeBind> "and" <typeClause> | <typeBind> .
+<typeBind>   ::= "type" <typeVarsOpt> "=" <typeExpr>
+               | "type" <tBind> .  (* ? *)
+
+(* ------------------------------------------------------------------------------------------------------------------ *)
+<specificationList> ::= <specification> <specificationList> | <epsilon> .
+
+<specification> ::= "val" <idWithTypeList>
+                  | "type" <typeIdList>
+                  | <typeDec>
+                  | "eqtype" <typeIdList>
+                  | "datatype" <id> "=" "datatype" <id>
+                  | "datatype" <dtBind>
+                  | "exception" <idOfTypeList>
+                  | "structure" <namedStructureSpecList>
+                  | <sharingSpec>
+                  | "include" <idList>
+                  | <skip> .
+
+<sharingSpec>     ::= "sharing" <sharingList> .
+<sharingList>     ::= <shareType> "and" <sharingList> | <shareType> .
+<shareType>       ::= <typeKeywordOpt> <id> <eqTypeIdList> .
+<typeKeywordOpt>  ::= "type" | <epsilon> .
+<eqTypeIdList>    ::= <eqTypeId>  <eqTypeIdList> | <eqTypeId> .
+<eqTypeId>        ::= "=" <id> .
+
+
+<typeIdList> ::= <typeId> "and" <typeIdList> | <typeId> .
+
+<typeId>    ::= <typeVarsOpt> <id> .
+
+<idWithTypeList> ::= <idWithType>
+                   | <idWithType> "and" <idWithTypeList> .
+
+<idWithType> ::= <id> ":" <typeExpr> .
+
+<idOfTypeList> ::= <idOfType> "and" <idOfTypeList> | <idOfType> .
+<idOfType>     ::= <id> <ofTypeOpt> .
+<ofTypeOpt>    ::= "of" <typeExpr> | <epsilon> .
+
+<namedStructureSpecList> ::= <namedStructureSpec> "and" <namedStructureSpecList>
+                           | <namedStructureSpec> .
+
+<namedStructureSpec> ::= <id> <opaqueSigMatch>
+                       | <id> <sigMatch> .
+
+(* ================================================================================================================== *)
+(* ------------------------------------------ dec ------------------------------------------------------------------- *)
+(* ================================================================================================================== *)
+<decSkipList> ::= <decSkip> <decSkipList> | <epsilon> .
+<decSkip>     ::= <dec> | <restrictedLocal> | <skip> .
+
+(* <decList> ::= <dec> <decList> | <dec> . *)
+
+<dec>       ::= <valDec>
+              | <funDec>
+              | <typeDec>
+              | <datatypeDec>
+              | <abstypeDec>
+              | <exceptionDec>
+              | <openStructure>
+              | <fixityDec> .
+
+<openStructure>       ::= <openKeyword> <openStructureIdList> .
+<openKeyword>         ::= "open" .
+<openStructureIdList> ::= <openStructureId> <openStructureIdList> | <openStructureId> .
+<openStructureId>     ::= <id> .
+(* ================================================================================================================== *)
+(* ----------------------------------------- datatypes -------------------------------------------------------------- *)
+(* ================================================================================================================== *)
+<datatypeDec> ::= "datatype" <id> "=" "datatype" <id>   (* datatype synonym *)
+                | "datatype" <dtBind> <withTypeOpt>  .
+
+<abstypeDec>  ::= "abstype" <dtBind> <withTypeOpt> "with" <decSkipList> "end" .
+
+(* ================================================================================================================== *)
+(* ----------------------------------------- fixity dec ------------------------------------------------------------- *)
+(* ================================================================================================================== *)
+<fixityDec>     ::= <infixDec> | <infixrDec> | <nonFixDec> .
+
+<infixDec>      ::= "infix"  <precedenceOpt> <idList> .
+<infixrDec>     ::= "infixr" <precedenceOpt> <idList> .
+<nonFixDec>     ::= "nonfix" <idList> .
+
+<precedenceOpt> ::= <integer> | <epsilon> .
+
+
+(* ================================================================================================================== *)
+(* ----------------------------------------- exception dec ---------------------------------------------------------- *)
+(* ================================================================================================================== *)
+<exceptionDec> ::= "exception" <exceptionKindList> .
+
+<exceptionKindList> ::= <exceptionKind> "and" <exceptionKindList> | <exceptionKind> .
+
+<exceptionKind> ::= <id> "of" <typeExpr>
+                  | <id> "=" <id>
+                  | <id>          .
+
+(* ================================================================================================================== *)
+(* ----------------------------------------- datatype dec ----------------------------------------------------------- *)
+(* ================================================================================================================== *)
+<withTypeOpt> ::= <epsilon>
+                | "withtype" <tBind> .
+
+<dtBind>    ::= <dtDef> "and" <dtBind>
+              | <dtDef> .
+
+<dtDef>     ::= <typeVarsOpt> <id> "=" <dtTermList> .
+
+<dtTermList> ::= <dtTerm> "|" <dtTermList>
+               | <dtTerm> .
+
+<dtTerm>    ::= <constructorIdDec> "of" <typeExpr>
+              | <constructorIdDec> .
+
+<constructorIdDec> ::= <id> .
+
+(* ================================================================================================================== *)
+(* ----------------------------------------- type dec --------------------------------------------------------------- *)
+(* ================================================================================================================== *)
+
+<domainTypeOpt> ::= ":" <typeExpr> | <epsilon> .
+
+<tBindList>     ::= <tBind> "and" <tBindList> | <tBind> .
+
+<typeDec>       ::= "type" <tBindList> .
+
+<tBind>         ::= <typeVarsOpt> <id> "=" <typeExpr> .
+
+<typeExprList>  ::= <typeExpr> "," <typeExprList> | <typeExpr> "," <typeExpr> .
+
+<typeExpr>      ::= <typeTerm> "->" <typeExpr> | <typeTerm> .
+<typeTerm>      ::= <typeTerm> "*" <typeFactor> | <typeFactor> .
+
+<typeFactor> ::= <typeFactor> <id>  (* e.g., int option, int list, int list list, int ref list *)
+               | <typeFactor> "ref"
+               | <typeBase> .
+
+<typeBase>   ::= "(" <typeExprList> ")"    (* two or more *)
+               | "(" <typeExpr> ")"
+               | "{" <labelTypeList> "}"
+               | <typeVar>
+               | <id>   .
+
+
+<labelTypeList> ::= <labelType> "," <labelTypeList> | <labelType> .
+
+<labelType>     ::= <label> ":" <typeExpr> .
+
+(* ================================================================================================================== *)
+(* --------------------------------------------- type variabes ------------------------------------------------------ *)
+(* ================================================================================================================== *)
+<typeVarsOpt>        ::= <epsilon>
+                      | <typeVars> .
+
+<typeVars>          ::= <typeVar>
+                      | "(" <typeVarList> ")" .
+
+<typeVarList>       ::= <typeVar> "," <typeVarList> | <typeVar> .
+<typeVar>           ::= <typeVariable>
+                      | <eqtypeVariable> .
+
+<typeVariable>      ::= type_variable .
+
+<eqTypeVariable>    ::= eqtype_variable .
+
+(* ================================================================================================================== *)
+(* ----------------------------------------- val dec ---------------------------------------------------------------- *)
+(* ================================================================================================================== *)
+<valDec>     ::= <valKeyword> <typeVarsOpt> <valBind>                                   .
+<valKeyword> ::= "val" .
+
+<valBind>   ::= <valBase> <andDefList> .
+
+<valBase>   ::= <recursiveValBind> <valBaseEnd>
+              | <nonrecursiveValBind> <valBaseEnd>                          .
+
+<recursiveValBind>    ::= "rec" <pat> "=" <fnExprParen>                     .
+<nonrecursiveValBind> ::= <pat> "=" <expr>                                  .
+
+<andDefList>          ::= "and" <valBase> <andDefList>
+                        | <epsilon>                                         .
+
+<fnExprParen>      ::= "(" <fnExprParen> ")"
+                     | <fnExpr>                                             .
+
+<valBaseEnd>  ::= <epsilon> .
+(* ------------------------------------------------------------------------------------------------------------------ *)
+
+
+(* ================================================================================================================== *)
+(* ----------------------------------------- fun dec ---------------------------------------------------------------- *)
+(* ================================================================================================================== *)
+<funDec>     ::= <funKeyword> <fBind>                                           .
+<funKeyword> ::= "fun" .
+
+<fBind>  ::= <typeVarsOpt> <funList>                                            .
+
+<funList>         ::= <funEquationExpr>                                         .
+
+<funEquationExpr> ::= <funEquationExpr> "and" <funEquationTerm>
+                    | <funEquationTerm>                                         .
+
+(* allows an entire function declaration to be captured via a match *)
+<funEquationTerm> ::= <funEquationFactor> <funDecEnd>                           .
+<funDecEnd>       ::= <epsilon>                                                 .
+
+<funEquationFactor> ::= <funEquationFactor> "|" <funEquation>
+                      | <funEquation>                                           .
+
+
+<funEquation>   ::= <funId> <funParameters> <domainTypeOpt> "=" <funBody>       .
+<funBody>       ::= <expr> .
+
+<funId>         ::= <id>                                                        .
+
+<funParameters> ::= <paramList>                                                 .
+<paramList>     ::= <param> <paramList> | <param>                               .
+<param>         ::= <atomicPat>                                                 .
+
+(* ================================================================================================================== *)
+(* --------------------------------------------- patterns ----------------------------------------------------------- *)
+(* ================================================================================================================== *)
+<patListOpt> ::= <patList> | <epsilon> .
+<patList>    ::= <pat> "," <patList> | <pat> .
+
+
+<pat> ::= <infixPat>
+        | <idAsPat> .
+
+<idAsPat> ::= <id> "as" <pat> .
+
+
+(* python *)
+
+<python_function> ::= "def" <funId> <funParameters> ":" <python_fun_body>       .
+
+<python_fun_body> ::= <expr>                                                .
+
+<python_import> ::= "import" <openStructureIdList>                             .
+
+(* Need to stick in a parens for a curried function in python *)
+<python_curried> ::= <base> "("                                                .
+
+<python_last_arg> ::= <base> <domainTypeOpt> ")"                               .
+
+<python_factor> ::= <python_first_base>                      .
+
+<python_first_base> ::= <firstBase> "("                                        .
+
+<python_arg_list> ::= <lastArg> "," <python_arg_list> | <lastArg>                 .
+
+<python_app> ::= <python_factor> <python_arg_list> ")"                                 .
+
+(* only last basePat can have type ascription *)
+<infixPat> ::= <leftAssociativeInfixPat> <leftInfix> <lastBasePat>
+             | <basePat> <rightInfix> <rightAssociativeInfixPat>
+             | <lastBasePat> .
+
+<leftAssociativeInfixPat>  ::= <leftAssociativeInfixPat> <leftInfix> <basePat>
+                             | <basePat>                                            .
+<rightAssociativeInfixPat> ::= <basePat> <rightInfix> <rightAssociativeInfixPat>
+                             | <lastBasePat>                                            .
+
+
+<lastBasePat> ::= <constructorIdOpt> <atomicPat> <domainTypeOpt> .
+<basePat>     ::= <constructorIdOpt> <atomicPat> .
+
+(* ------------------------------------------------------------------------------------------------------------------ *)
+<atomicPat> ::= <atomicBase>
+              | "SOME" <atomicBase>
+              | "NONE" .
+
+<atomicBase> ::= <id>
+              | <constant>   (* unit (), [], and {} are values (i.e., constants) *)
+              | <wildcard>
+
+              (* aggregations *)
+              | <tuplePat>
+              | <listPat>
+              | <record>  .
+
+<tuplePat> ::= "(" <patList> ")" .   (* note that () is also a constant *)
+<listPat>  ::= "[" <patList> "]" .  (* note that [] is also a constant *)
+
+<record> ::= "{" <recordBodyOpt> "}" .
+
+<recordBodyOpt> ::= <recordBody>
+                  | <epsilon> . (* note that {} is also a constant *)
+
+<recordBody> ::= <recordEntryList>
+               | <recordEntryList> "," <ellipsis>
+               | <ellipsis> . (* just ellipsis is permitted *)
+
+<recordEntryList> ::= <recordEntry>
+                    | <recordEntry> "," <recordEntryList> .
+
+<recordEntry> ::= <label> "=" <pat>
+                | <label> <domainTypeOpt>  (* SML permits { foo, bar } as a shorthand for {foo=foo, bar=bar} *)
+                | <idAsPat> .
+
+<ellipsis> ::=  "..." .
+
+
+(* ================================================================================================================== *)
+(* ----------------------------------------------- matches ---------------------------------------------------------- *)
+(* ================================================================================================================== *)
+(* matches can only be nested in one way -- otherwise they are ambiguous *)
+<match>             ::= <matchNonCascading> "|" <match> | <matchBase> .
+<matchNonCascading> ::= <matchPat> "=>" <nonMatchingExpr> <matchEnd> .
+<matchBase>         ::= <matchPat> "=>" <expr> <matchEnd> .
+<matchPat>          ::= <pat> .
+<matchEnd>          ::= <epsilon> .
+
+(* ================================================================================================================== *)
+(* --------------------------------------------- expressions -------------------------------------------------------- *)
+(* ================================================================================================================== *)
+(* A local-in-end block may occur within a let-block, but in this case it may not contain
+  structure or signature declarations.
+*)
+<exprListOrSeq>      ::= <expr> "," <exprList>
+                       | <expr> ";" <exprSeq>
+                       | <expr>                                                       .
+
+<exprList>           ::= <expr> "," <exprList> | <expr>                               .
+<exprSeq>            ::= <expr> ";" <exprSeq>  | <expr>                               .
+
+(* note elipsis can only occur once and it must last *)
+<itemList>           ::= <item> "," <itemList> | <item>                               .
+<item>               ::= <label> "=" <expr>
+                       | <elipsis> .
+
+(* An issue here is cascading (i.e., nesting) matches *)
+<expr>    ::= <term>
+            | <whileExpr>
+            | <conditionalExpr>
+            | <raiseExpr>
+            | <matchingExpr> .
+
+(* ------------------------------------------------------------------------------------ *)
+<matchingExpr> ::= <caseExpr>
+                 | <handleExpr>
+                 | <fnExpr>  .
+
+<caseExpr>        ::= "case" <expr> "of" <match>          .
+<handleExpr>      ::= <nonMatchingExpr> "handle" <match>  .
+<fnExpr>          ::= "fn" <fnMatch> <fnExprEnd>          .
+<fnMatch>         ::= <match>                             .
+<fnExprEnd>       ::= <epsilon>                           .
+
+(* ------------------------------------------------------------------------------------ *)
+
+<whileExpr>       ::= "while" <expr> "do" <expr>                                .
+<conditionalExpr> ::= "if" <expr> "then" <expr> <skipOpt> "else" <expr>         .
+<raiseExpr>       ::= "raise" <expr>                                            .
+<letBlock>        ::= "let" <decSkipList> "in" <exprSeq> <skipOpt> <letEnd>     .
+<letEnd>          ::= "end"                                                     .
+
+
+
+(* ------------------------------------------------------------------------------------ *)
+(* non-cascading expressions do not contain any "top-level" (i.e., exposed) matches     *)
+(* This nonterminal is only reached via non-last matches. Note that parens can be used  *)
+(* to "reset" thereby providing the full range of possibilities.                        *)
+(* ------------------------------------------------------------------------------------ *)
+<nonMatchingExpr>    ::= <term>
+                       | "if" <expr> "then" <expr> <skipOpt> "else" <nonMatchingExpr>
+                       | "while" <expr> "do" <nonMatchingExpr>
+                       | "raise" <nonMatchingExpr>    .
+(* ------------------------------------------------------------------------------------ *)
+
+
+<term> ::= <term> "orelse"  <term> %PREC "L4" .
+<term> ::= <term> "andalso" <term> %PREC "L5" .
+
+<term> ::= <term> "o"  <term> %PREC "L13" .
+<term> ::= <term> ":=" <term> %PREC "L13" .
+
+<term> ::= <term> "="  <term> %PREC "L14" .
+<term> ::= <term> "<>" <term> %PREC "L14" .
+<term> ::= <term> "<=" <term> %PREC "L14" .
+<term> ::= <term> ">=" <term> %PREC "L14" .
+<term> ::= <term> "<"  <term> %PREC "L14" .
+<term> ::= <term> ">"  <term> %PREC "L14" .
+
+<term> ::= <term> "::" <term> %PREC "L14" .
+<term> ::= <term> "@"  <term> %PREC "L14" .
+
+<term> ::= <term> "+" <term> %PREC "L16" .
+<term> ::= <term> "-" <term> %PREC "L16" .
+<term> ::= <term> "^" <term> %PREC "L16" .
+
+<term> ::= <term> "*"   <term> %PREC "L17" .
+<term> ::= <term> "/"   <term> %PREC "L17" .
+<term> ::= <term> "div" <term> %PREC "L17" .
+<term> ::= <term> "mod" <term> %PREC "L17" .
+
+<term> ::= <app> .
+
+<app> ::= <factor> <lastArg> | <lastArg> .
+
+(* domain type must bind most tightly and includes everything to right .. up to closing paren *)
+<lastArg> ::= <base> <domainTypeOpt> .
+
+(* function application *)
+<factor>    ::= <factor> <base> | <firstBase> .
+<firstBase> ::= <base> . (* possibly name of a function being being applied to arguments *)
+
+<base> ::= <exprId>
+         | <constant>
+         | <letBlock>
+         | "ref"
+         | "SOME"
+         | "NONE"
+         | "(" <exprListOrSeq> <skipOpt> ")"
+         | "[" <exprList> "]"
+         | "{" <itemList> "}"
+         | "#" <label>
+         | "op" <infixId>  . (* op binds tighter than any other symbol *)
+
+<infixId> ::= <infixIdBase>
+            | <exprId> .
+
+<infixIdBase> ::= "=" | "<>" | "<=" | ">=" | ">" | "<"
+            | "+" | "-" | "^"
+            | "*" | "/" | "div" | "mod"
+            | "::" | "@"
+            | "o" .
+
+<exprId> ::= <id> .
+(* ================================================================================================================== *)
+(* --------------------------------------------- basic things ------------------------------------------------------- *)
+(* ================================================================================================================== *)
+<constructorIdOpt>  ::= <constructorId> | <epsilon> .
+
+<constructorId>     ::= <id> .
+
+<leftInfix>         ::= <id> .   (* a constructor *)
+<rightInfix>        ::= "::"                                                       .
+
+<constant> ::= <integer>
+             | <float>
+             | <boolean>
+             | <str>
+             | <char>
+             | <word>
+             | "(" ")"
+             | "[" "]"
+             | "{" "}"  .
+
+<label>     ::= <id>
+              | <integer> .   (* technically speaking, a positive integer *)
+
+<idList>      ::= <id> <idList> | <id> .
+
+
+(* Consider the well-formed expression: Time.-(Time.now(),Time.now()) *)
+<id>          ::= <canonicalId>                                             .
+
+(* <id> ::= <qualifiedId> . *)
+(* <qualifiedId> ::= <simpleId> |  <simpleId> "." <qualifiedId>      . *)
+
+<canonicalId>      ::= <simpleId> | <simpleId> "." <qualifiedId> .
+
+(* right-associative is better for analysis *)
+<qualifiedId> ::= <finalId> |  <simpleId> "." <qualifiedId> .
+
+<finalId> ::= <simpleId> | <infixIdBase>                                       .
+
+<simpleId>    ::= basic_id (* no | <keyword_list>  *)                                   .
+
+(* <keyword_list> ::= "list"                                                      . *)
+<char>         ::= char_value                                                  .
+<str>          ::= string_value                                                .
+<integer>      ::= integer_value                                               .
+<float>        ::= real_value                                                  .
+<boolean>      ::= boolean_value                                               .
+<word>         ::= word_value                                                  .
+
+<wildcard>     ::= "_"                                                         .
+
+
+(* ================================================================================================================== *)
+<epsilon>   ::=                                                             .
+

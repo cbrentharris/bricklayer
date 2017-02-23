@@ -1,0 +1,490 @@
+
+(* =================================================================================================== *)
+(* --------------------------------------------------------------------------------------------------- *)
+(*                                    Structure                                                        *)
+(* --------------------------------------------------------------------------------------------------- *)
+(* =================================================================================================== *)
+structure PRETTYPRINT_STYLES: PRETTYPRINT_STYLES_SIG =
+struct
+open CONCRETE_REPRESENTATION;
+open PRETTYPRINT_DATATYPES;
+
+
+(* --------------------------------------------------------------------------------------------------- *)
+(*                                  Auxiliary Functions                                                *)
+(* --------------------------------------------------------------------------------------------------- *)
+
+val leaf_node_count = ref 0;
+
+fun auxLeafNodeCount(itree( inode      ("", _)                   , [] ) ) = ()
+  | auxLeafNodeCount(itree( inode      (name, _)                 , [] ) ) = leaf_node_count := !leaf_node_count + 1
+
+  | auxLeafNodeCount(t as itree(inode(name,_),children) ) =
+    let
+        fun traverse( itree( inode("",_)                         , []       ) ) = ()
+          | traverse (itree( inode(name,_)                       , []       ) ) = leaf_node_count := !leaf_node_count + 1
+          |    traverse (itree( inode(name,_)                       , children ) ) = foldr (fn (t, _) => traverse t ) () children
+              | traverse t                                                 = (
+                                            print("\n\n=========================================\n\n");
+                                            CONCRETE_REPRESENTATION.fullPrintTree " " t;
+                                            raise General.Fail("Error in Oberon.sty: auxLeafNodeCount.traverse.\n")
+                                            );
+    in
+        traverse t
+    end
+  | auxLeafNodeCount t = (
+                              print("\n\n=========================================\n\n");
+                              CONCRETE_REPRESENTATION.fullPrintTree " " t;
+                              raise General.Fail("Error in Oberon.sty: auxLeafNodeCount.\n")
+                                 );
+
+fun nonEmptyLeafNodeCount( i ) =
+    (
+        leaf_node_count := 0;
+        auxLeafNodeCount( getSubTree i );
+        !leaf_node_count
+    );
+
+(* --------------------------------------------------------------------------------------------------- *)
+fun sumLeaves( i, max ) = if i > max then 0
+                  else String.size(CONCRETE.leavesToStringRaw(getSubTree i)) + sumLeaves(i+1,max)
+
+fun makeBlanks(0) = ""
+  | makeBlanks(n) = if n > 0 then " " ^ makeBlanks(n-1)
+                 else raise General.Fail("Error in syle file: makeBlanks\n")
+(* --------------------------------------------------------------------------------------------------- *)
+
+
+
+val nl     = "\n";
+val sp  = " ";
+val tab = sp ^ sp ^ sp ^ sp;
+
+
+(* =================================================================================================== *)
+(*                                        Formatting                                                   *)
+(* =================================================================================================== *)
+
+(* -------------------------------------------------------------------- *)
+val format_list =
+
+    [
+        (* ------------------------------------------------------------------------------ *)
+        (
+            "sml_prog ::= entityList TopLevelFunctorStrSigDecList",
+            fn LM =>
+            [
+                insert(nl ^ nl),
+                process(1,LM),
+                process(2,LM),
+                insert(nl ^ nl ^ nl ^ nl)
+            ]
+        )
+        ,
+        (* ------------------------------------------------------------------------------ *)
+        (
+            "sml_prog ::= entityList",
+            fn LM =>
+            [
+                insert(nl ^ nl),
+                process(1,LM),
+                insert(nl ^ nl ^ nl ^ nl)
+            ]
+        )
+        ,
+        (* ------------------------------------------------------------------------------ *)
+        (
+            "sml_prog ::= entityList expr",
+            fn LM =>
+            [
+                insert(nl ^ nl),
+                process(1,LM),
+                process(2,LM),
+                insert(nl ^ nl ^ nl ^ nl)
+            ]
+        )
+        ,
+
+        (* ------------------------------------------------------------------------------ *)
+        (
+            "entityList ::= entity entityList",
+            fn LM =>
+            [
+                process(1,LM),
+                process(2,LM)
+            ]
+        )
+        ,
+        (* ------------------------------------------------------------------------------ *)
+        (
+            "TopLevelFunctorStrSigDecList ::= FunctorStrSigDec TopLevelFunctorStrSigDecList",
+            fn LM =>
+            [
+                process(1,LM),
+                process(2,LM)
+            ]
+        )
+        ,
+
+        (* ------------------------------------------------------------------------------ *)
+        (
+            "letBlock ::= let decSkipList in exprSeq skipOpt letEnd",
+            fn LM =>
+            [
+                insert(nl ^ LM),
+                process(1,LM),
+
+                process(2,LM ^ tab),
+
+                insert(nl ^ LM),
+                process(3,LM),
+
+
+                process(4,LM ^ tab),
+
+                process(5,LM ^ tab),
+                process(6,LM)
+            ]
+        )
+        ,
+        (* ------------------------------------------------------------------------------ *)
+        (
+            "exprSeq ::= expr ; exprSeq",
+            fn LM =>
+            [
+                insert(nl ^ LM),
+                process(1,LM),
+                (* process(2,LM), *)
+                (* insert(nl ^ LM), *)
+                process(3,LM)
+            ]
+        )
+        ,
+        (* ------------------------------------------------------------------------------ *)
+        (
+            "exprSeq ::= expr",
+            fn LM =>
+            [
+                insert(nl ^ LM),
+                process(1,LM)
+            ]
+        )
+
+        ,
+
+        (* ------------------------------------------------------------------------------ *)
+        (
+            "letEnd ::= end",
+            fn LM =>
+            [
+                insert(nl ^ LM),
+                process(1,LM)
+            ]
+        )
+
+        ,
+
+        (* ------------------------------------------------------------------------------ *)
+        (
+            "decSkipList =>* decSkip epsilon",
+            fn LM =>
+            [
+                process(1,LM)
+            ]
+        )
+        ,
+        (* ------------------------------------------------------------------------------ *)
+        (
+            "decSkipList ::= decSkip decSkipList",
+            fn LM =>
+            [
+                process(1,LM),
+                process(2,LM)
+            ]
+        )
+        ,
+        (* ------------------------------------------------------------------------------ *)
+        (
+            "decSkipList ::= decSkip decSkipList",
+            fn LM =>
+            [
+                process(1,LM),
+                process(2,LM)
+            ]
+        )
+        ,
+        (* ------------------------------------------------------------------------------ *)
+        (
+            "valDec ::= valKeyword typeVarsOpt valBind",
+            fn LM =>
+            [
+                process(1,LM),
+                insert(" "),
+                process(2,LM),
+                process(3,LM ^ tab)
+            ]
+        ),
+
+        (* ------------------------------------------------------------------------------ *)
+        (
+            "lastBasePat ::= constructorIdOpt atomicPat domainTypeOpt",
+            fn LM =>
+            [
+                process(1,LM),
+                process(2,LM),
+                process(3,LM)
+            ]
+        )
+
+        ,
+        (* ------------------------------------------------------------------------------ *)
+        (
+            "fBind ::= typeVarsOpt funList",
+            fn LM =>
+            [
+                process(1,LM),
+                process(2,LM)
+            ]
+        )
+
+        ,
+        (* ------------------------------------------------------------------------------ *)
+        (
+            "funEquation ::= funId funParameters domainTypeOpt = funBody",
+            fn LM =>
+            [
+                process(1,LM),
+                insert(" "),
+                process(2,LM),
+                insert(" "),
+                process(3,LM),
+                insert(" "),
+                process(4,LM),
+                insert(" "),
+                process(5,LM)
+            ]
+        )
+        ,
+        (* ------------------------------------------------------------------------------ *)
+        (
+            "funBody =>* letBlock domainTypeOpt",
+            fn LM =>
+            [
+                process(1,LM ^ tab),
+                process(2,LM ^ tab)
+            ]
+        ),
+        (
+          "entity ::= TopLevelFunctorStrSigDecList ;",
+          fn LM =>
+          [
+            process(1, LM)
+          ]
+        ),
+        (
+          "python_import =>* import openStructureId",
+          fn LM =>
+          [
+            insert(nl ^ LM),
+            process(1, LM),
+            insert(sp),
+            process(2, LM)
+          ]
+        ),
+        (* ------------------------------------------------------------------------------ *)
+        (* (
+            "funBody =>* ( expr ; exprSeq skipOpt ) domainTypeOpt",
+            fn LM =>
+            [
+                insert(nl ^ tab),
+                process(1,LM),
+                insert(nl ^ tab ^ tab),
+                (* process(2,LM ^ tab ^ tab), *)
+                process(3,LM),
+                process(4,LM ^ tab ^ tab),
+                process(5,LM),
+                insert(nl ^ LM ^ tab),
+                process(6,LM),
+                process(7,LM)
+            ]
+        )
+        ,     *)
+        (* ------------------------------------------------------------------------------ *)
+        (* (
+            "exprSeq ::= expr ; exprSeq",
+            fn LM =>
+            [
+                insert(nl ^ LM),
+                process(1,LM),
+                insert(nl ^ LM),
+                (* process(2,LM), *)
+                process(3,LM)
+            ]
+        ),*)
+        (
+          "exprListOrSeq ::= expr ; exprSeq",
+          fn LM =>
+          [
+            insert(nl ^ LM),
+            process(1, LM),
+            (* insert(nl ^ LM), *)
+            process(3, LM)
+          ]
+        )
+        ,
+        (* ------------------------------------------------------------------------------ *)
+        (
+            "lastArg ::= base domainTypeOpt",
+            fn LM =>
+            [
+                process(1,LM),
+                process(2,LM)
+            ]
+        )
+
+        ,
+
+        (* ------------------------------------------------------------------------------ *)
+        (
+            "entity ::= expr ;",
+            fn LM =>
+            [
+                insert(nl ^ LM),
+                process(1,LM) (* , *)
+                (* process(2,LM) *)
+            ]
+        )
+
+        ,
+        (* ------------------------------------------------------------------------------ *)
+        (
+            "valKeyword ::= val",
+            fn LM =>
+            [
+                insert(nl ^ LM),
+                process(1,LM)
+            ]
+        )
+        ,
+        (* ------------------------------------------------------------------------------ *)
+        (
+            "funKeyword ::= fun",
+            fn LM =>
+            [
+                insert(nl ^ nl ^ LM),
+                process(1,LM)
+            ]
+        )
+
+        ,
+        (* ------------------------------------------------------------------------------ *)
+        (
+            "openKeyword ::= open",
+            fn LM =>
+            [
+                insert(nl ^ LM),
+                process(1,LM)
+            ]
+        )
+
+        ,
+
+        (* ------------------------------------------------------------------------------ *)
+        (
+            "epsilon ::= ",
+            fn LM =>
+            [
+            ]
+        ),
+        (
+           "python_function =>* def funId funParameters : ( exprListOrSeq skipOpt )",
+            fn LM =>
+              [
+                insert(nl ^ LM),
+                process(1, LM),
+                insert(sp),
+                process(2, LM),
+                process(3, LM),
+                process(4, LM),
+                insert(nl ^ LM ^ tab),
+                process(6, LM ^ tab)
+              ]
+        ),
+        (
+           "python_function ::= def funId funParameters : python_fun_body",
+            fn LM =>
+              [
+                insert(nl ^ LM),
+                process(1, LM),
+                insert(sp),
+                process(2, LM),
+                process(3, LM),
+                process(4, LM),
+                insert(nl ^ LM ^ tab),
+                process(5, LM ^ tab)
+              ]
+        ),
+        (
+          "python_app =>* firstBase ( python_arg_list )",
+          fn LM =>
+            [
+              process(1, LM),
+              process(2, LM),
+              process(3, LM),
+              process(4, LM)
+            ]
+        ),
+        (
+          "python_arg_list ::= lastArg , python_arg_list",
+          fn LM =>
+            [
+              process(1, LM),
+              process(2, LM),
+              insert(sp),
+              process(3, LM)
+            ]
+        ),
+        (
+          "python_arg_list ::= lastArg",
+          fn LM => [ process(1, LM) ]
+        ),
+        (
+          "exprList ::= expr , exprList",
+          fn LM =>
+          [
+            process(1, LM),
+            process(2, LM),
+            insert(sp),
+            process(3, LM)
+          ]
+        ),
+        (
+          "exprListOrSeq ::= expr , exprList",
+          fn LM =>
+          [
+            process(1, LM),
+            process(2, LM),
+            insert(sp),
+            process(3, LM)
+          ]
+        ),
+        (
+          "funBody =>* expr",
+          fn LM =>
+          [
+            process(1, LM)
+          ]
+        ),
+        (
+          "python_fun_body =>* ( exprListOrSeq skipOpt ) domainTypeOpt",
+          fn LM =>
+          [
+            process(2, LM)
+          ]
+        )
+];
+(* =================================================================================================== *)
+end (* struct *)
+(* =================================================================================================== *)
+
+

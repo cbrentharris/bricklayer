@@ -33,14 +33,15 @@ def collect(filename):
         raise ValueError("There is an issue with your python program. Try running the --diagnose method of bricklayer to see what is wrong.")
     m = Metrics()
     m.collect_metrics(filename)
-    BackendApi.post_metrics(
-        source_lines_of_code=m.source_lines_of_code,
-        comments=m.comments,
-        cyclomatic_complexity=m.cyclomatic_complexity,
-        filename=filename,
-        user_defined_functions=m.user_defined_functions,
-        level=m.level
-    )
+    print m.user_defined_functions
+    # BackendApi.post_metrics(
+    #     source_lines_of_code=m.source_lines_of_code,
+    #     comments=m.comments,
+    #     cyclomatic_complexity=m.cyclomatic_complexity,
+    #     filename=filename,
+    #     user_defined_functions=m.user_defined_functions,
+    #     level=m.level
+    # )
 
 def main():
     parser = create_parser()
