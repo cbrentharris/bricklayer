@@ -5,3 +5,5 @@ requests
 responses
 progressbar
 numpy
+pandas
+scikit-learn

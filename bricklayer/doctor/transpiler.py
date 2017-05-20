@@ -157,8 +157,13 @@ class TLSystem(object):
     def transpile_all_files(cls):
         directory_map = OrderedDict([
             ('Level_1', ['Assignment_1', 'Assignment_2', 'Assignment_3']),
-            ('Level_2', ['Assignment_4', 'Assignment_5', 'Assignment_6', 'Assignment_7'])
+            ('Level_2', ['Assignment_4', 'Assignment_5', 'Assignment_6', 'Assignment_7']),
+            ('Level_3', ['Assignment_9', 'Assignment_10', 'Assignment_11', 'Assignment_13', 'Assignment_14']),
+            ('Level_4', ['Assignment_15', 'Assignment_16']),
         ])
+        # Clear the stats file
+        with open(os.path.join(cls.TL_PROJECT_HOME, "Target", "2", "stats.csv"), "w") as output_file:
+            pass
         for parent_dir, children_dirs in directory_map.items():
             for child_dir in children_dirs:
                 full_dir = os.path.join(cls.TL_PROJECT_HOME, "Target", "0", parent_dir, child_dir)
@@ -169,7 +174,6 @@ class TLSystem(object):
                 for filename in os.listdir(full_dir):
                     TLSystem.transpile(os.path.join(parent_dir, child_dir, filename))
 
-
     @classmethod
     def transpile(cls, filename):
         new_file = cls.replace_newlines_with_spaces_in_file(filename)
@@ -177,8 +181,10 @@ class TLSystem(object):
         subprocess.call(' '.join(map(cls.surround_with_quotes, cls.TRANSPILE_ARGS + [new_file])), shell=True)
         metrics = Metrics()
         try:
+            grade = cls.get_grade_from_file(filename)
+            submission = cls.get_submission_from_file(filename)
             metrics.collect_metrics(os.path.join(cls.TL_PROJECT_HOME, "Target", "1", "transpiled.py"))
-            cls.append_metrics_to_log_file(metrics, filename)
+            cls.append_metrics_to_log_file(metrics, grade, submission, filename)
         except SyntaxError:
             print "Error collecting metrics of filename " + filename
 
@@ -201,8 +207,53 @@ class TLSystem(object):
         return name + "_no_comments" + ext
 
     @classmethod
-    def append_metrics_to_log_file(cls, metrics, filename):
+    def append_metrics_to_log_file(cls, metrics, grade, submission, filename):
         with open(os.path.join(cls.TL_PROJECT_HOME, "Target", "2", "stats.csv"), "a+") as output_file:
             output_file.write("\n" + ",".join(map(str, [metrics.cyclomatic_complexity, metrics.source_lines_of_code,
-                                                 metrics.comments, metrics.user_defined_functions, metrics.level,
-                                                 filename])))
+                                                        metrics.comments, metrics.user_defined_functions, metrics.level,
+                                                        submission, grade, filename])))
+
+    @classmethod
+    def get_grade_from_file(cls, filename):
+        with open(os.path.join(cls.TL_PROJECT_HOME, "Target", "0", filename), 'rb') as input_file:
+            data = input_file.read()
+            groups = re.search('.*?@grade\s+([0-9]+) / ([0-9]+)', data)
+            numerator = groups.group(1)
+            denominator = groups.group(2)
+            grade = float(numerator) / float(denominator)
+            if grade >= .94:
+                return 'A'
+            elif grade >= .9:
+                return 'A-'
+            elif grade >= .87:
+                return 'B+'
+            elif grade >= .84:
+                return 'B'
+            elif grade >= .8:
+                return 'B-'
+            elif grade >= .76:
+                return 'C+'
+            elif grade >= .7:
+                return 'C'
+            elif grade >= .67:
+                return 'C-'
+            elif grade >= .64:
+                return 'D+'
+            elif grade >= .6:
+                return 'D'
+            else:
+                return 'F'
+
+    @classmethod
+    def get_submission_from_file(cls, filename):
+        with open(os.path.join(cls.TL_PROJECT_HOME, "Target", "0", filename), 'rb') as input_file:
+            data = input_file.read()
+            groups = re.search('.*?@submission\s+([A-Za-z]+)', data)
+            print groups.group(1)
+            submission = groups.group(1)
+            if submission == "on":
+                return 1
+            elif submission == "early":
+                return 2
+            else:
+                return 3
