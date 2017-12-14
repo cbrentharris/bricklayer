@@ -26,6 +26,14 @@ $ bricklayer --download
  
 ### Installation
 
+First, ensure that you have `pip` installed. Next, execute
+
+```sh
+pip install -r requirements.txt
+```
+
+And then
+
 ```sh
 python setup.py install
 ```
