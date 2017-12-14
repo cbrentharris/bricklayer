@@ -24,3 +24,8 @@ $ bricklayer --download
  ```
  Will output a file called `ldd.zip` or `ldd.exe` in the directory you were in (zip for mac, exe for windows).
  
+### Installation
+
+```sh
+python setup.py install
+```
